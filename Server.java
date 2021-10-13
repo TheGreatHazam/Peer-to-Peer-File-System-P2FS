@@ -1,61 +1,58 @@
-import java.net.*;
-import java.io.*;
-  
-public class Server
-{
-    //initialize socket and input stream
-    private Socket          socket   = null;
-    private ServerSocket    server   = null;
-    private DataInputStream in       =  null;
-  
-    // constructor with port
-    public Server(int port)
-    {
-        // starts server and waits for a connection
-        try
-        {
-            server = new ServerSocket(port);
-            System.out.println("Server started");
-  
-            System.out.println("Waiting for a client ..."); 
-  
-            socket = server.accept(); //only active when a client connects to the server
-            System.out.println("Client accepted");
-  
-            // takes input from the client socket
-            in = new DataInputStream(
-                new BufferedInputStream(socket.getInputStream()));
-  
-            String line = "";
-  
-            // reads message from client until "Over" is sent
-            while (!line.equals("Over"))
-            {
-                try
-                {
-                    line = in.readUTF();
-                    System.out.println(line);
-  
-                }
-                catch(IOException i)
-                {
-                    System.out.println(i);
-                }
-            }
-            System.out.println("Closing connection");
-  
-            // close connection
-            socket.close();
-            in.close();
-        }
-        catch(IOException i)
-        {
-            System.out.println(i);
-        }
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+
+public class Server{
+  // Server UDP socket runs at this port
+  public final static int SERVICE_PORT=50001;
+ 
+  public static void main(String[] args) throws IOException{
+    try{
+      // Instantiate a new DatagramSocket to receive responses from the client
+      DatagramSocket serverSocket = new DatagramSocket(SERVICE_PORT);
+      
+      /* Create buffers to hold sending and receiving data.
+      It temporarily stores data in case of communication delays */
+      byte[] receivingDataBuffer = new byte[1024];
+      byte[] sendingDataBuffer = new byte[1024];
+      
+      /* Instantiate a UDP packet to store the 
+      client data using the buffer for receiving data*/
+      DatagramPacket inputPacket = new DatagramPacket(receivingDataBuffer, receivingDataBuffer.length);
+      System.out.println("Waiting for a client to connect...");
+      
+      // Receive data from the client and store in inputPacket
+      serverSocket.receive(inputPacket);
+      
+      // Printing out the client sent data
+      String receivedData = new String(inputPacket.getData());
+      System.out.println("Sent from the client: "+receivedData);
+      
+      /* 
+      * Convert client sent data string to upper case,
+      * Convert it to bytes
+      *  and store it in the corresponding buffer. */
+      sendingDataBuffer = receivedData.toUpperCase().getBytes();
+      
+      // Obtain client's IP address and the port
+      InetAddress senderAddress = inputPacket.getAddress();
+      int senderPort = inputPacket.getPort();
+      
+      // Create new UDP packet with data to send to the client
+      DatagramPacket outputPacket = new DatagramPacket(
+        sendingDataBuffer, sendingDataBuffer.length,
+        senderAddress,senderPort
+      );
+      
+      // Send the created packet to client
+      serverSocket.send(outputPacket);
+      // Close the socket connection
+      serverSocket.close();
     }
-  
-    public static void main(String args[])
-    {
-        Server server = new Server(3000);
+    catch (SocketException e){
+      e.printStackTrace();
     }
+  }
 }
