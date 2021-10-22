@@ -4,7 +4,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class Client{
+//For clients to talk to the server
+public class UDPClient{
   /* The server port to which 
   the client socket is going to connect */
   public final static int SERVICE_PORT = 3000;

@@ -4,7 +4,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class Server{
+//For communication between client and server
+public class UDPServer{
   // Server UDP socket runs at this port
   public final static int SERVICE_PORT=50001;
  
