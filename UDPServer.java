@@ -8,7 +8,7 @@ import java.util.ArrayList;
 //For communication between client and server
 public class UDPServer {
     // Server UDP socket runs at this port
-    public final static int SERVICE_PORT = 8000;
+    public final static int SERVICE_PORT = 3030;
     private static ArrayList clients = new ArrayList<ClientHandler>();
     public static DatagramSocket serverSocket;
     public static byte[] sendingDataBuffer = new byte[1024];
@@ -46,8 +46,24 @@ public class UDPServer {
         receiveUDPPacket();
         System.out.println(receivedData);
 
-        ClientHandler registerClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
-        clients.add(registerClient);
+        boolean register = true;
+
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            if (temp.getName().equals(receivedData)) {
+                register = false;
+                sendingDataBuffer = "REGISTER-DENIED".getBytes();
+                sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                break;
+            }
+        }
+        if (register) {
+            sendingDataBuffer = "REGISTERED".getBytes();
+            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+            ClientHandler registerClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
+            clients.add(registerClient);
+
+        }
         System.out.println(clients.toString());
     }
 

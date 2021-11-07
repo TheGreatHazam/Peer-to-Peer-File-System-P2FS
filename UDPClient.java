@@ -11,7 +11,7 @@ import java.util.SplittableRandom;
 public class UDPClient {
     /* The server port to which
     the client socket is going to connect */
-    public final static int SERVICE_PORT = 8000;
+    public final static int SERVICE_PORT = 3030;
     public static DatagramSocket clientSocket;
 
     private static boolean register = false;
@@ -52,12 +52,15 @@ public class UDPClient {
 
 
     }
-    public static void register(){while (!register) {
+    public static void register(){
+        System.out.println("Register the clients Username");
         String username = scanner.nextLine();
         sendingDataBuffer = username.getBytes();
         sendUDPPacket();
         //if receive register succesfull then it exits the loop if not resend username
-    }}
+        receiveUDPPacket();
+        System.out.println(receivedData);
+    }
 
     public static void main(String[] args) throws IOException {
         try {
@@ -65,7 +68,7 @@ public class UDPClient {
       No need to bind to a specific port */
             clientSocket = new DatagramSocket();
 
-            // Get the IP address of the server
+            // Get the IP address of the servera
             IPAddress = InetAddress.getByName("localhost");
 
 
@@ -77,12 +80,12 @@ public class UDPClient {
             sendUDPPacket();
             receiveUDPPacket();
             System.out.println("Sent from the server: " + receivedData);
-           // register();
-            while (true){}
+            register();
 
 
 
-            //clientSocket.close();
+
+            clientSocket.close();
 
 
         } catch (SocketException e) {
