@@ -3,57 +3,88 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 //For communication between client and server
-public class UDPServer{
-  // Server UDP socket runs at this port
-  public final static int SERVICE_PORT=50001;
- 
-  public static void main(String[] args) throws IOException{
-    try{
-      // Instantiate a new DatagramSocket to receive responses from the client
-      DatagramSocket serverSocket = new DatagramSocket(SERVICE_PORT);
-      
-      /* Create buffers to hold sending and receiving data.
-      It temporarily stores data in case of communication delays */
-      byte[] receivingDataBuffer = new byte[1024];
-      byte[] sendingDataBuffer = new byte[1024];
-      
-      /* Instantiate a UDP packet to store the 
-      client data using the buffer for receiving data*/
-      DatagramPacket inputPacket = new DatagramPacket(receivingDataBuffer, receivingDataBuffer.length);
-      System.out.println("Waiting for a client to connect...");
-      
-      // Receive data from the client and store in inputPacket
-      serverSocket.receive(inputPacket);
-      
-      // Printing out the client sent data
-      String receivedData = new String(inputPacket.getData());
-      System.out.println("Sent from the client: "+receivedData);
-      
-      /* 
-      * Convert client sent data string to upper case,
-      * Convert it to bytes
-      *  and store it in the corresponding buffer. */
-      sendingDataBuffer = receivedData.toUpperCase().getBytes();
-      
-      // Obtain client's IP address and the port
-      InetAddress senderAddress = inputPacket.getAddress();
-      int senderPort = inputPacket.getPort();
-      
-      // Create new UDP packet with data to send to the client
-      DatagramPacket outputPacket = new DatagramPacket(
-        sendingDataBuffer, sendingDataBuffer.length,
-        senderAddress,senderPort
-      );
-      
-      // Send the created packet to client
-      serverSocket.send(outputPacket);
-      // Close the socket connection
-      serverSocket.close();
+public class UDPServer {
+    // Server UDP socket runs at this port
+    public final static int SERVICE_PORT = 3030;
+    private static ArrayList clients = new ArrayList<ClientHandler>();
+    public static DatagramSocket serverSocket;
+    public static byte[] sendingDataBuffer = new byte[1024];
+    public static byte[] receivingDataBuffer = new byte[1024];
+
+    public static DatagramPacket sendingPacket;
+    private static DatagramPacket receivingPacket;
+    private static String receivedData;
+
+    public static void sendUDPPacket(InetAddress senderAddress, int senderPort) {
+        // Create new UDP packet with data to send to the client
+        sendingPacket = new DatagramPacket(sendingDataBuffer, sendingDataBuffer.length, senderAddress, senderPort);
+        try {
+            serverSocket.send(sendingPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    catch (SocketException e){
-      e.printStackTrace();
+
+    public static void receiveUDPPacket() {
+        receivingPacket = new DatagramPacket(receivingDataBuffer, receivingDataBuffer.length);
+
+        // Receive data from the client and store in receivingPacket
+        try {
+            serverSocket.receive(receivingPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Printing out the client sent data
+        receivedData = new String(receivingPacket.getData(), 0, receivingPacket.getLength());
     }
-  }
+
+    public static void registerClient() {
+        receiveUDPPacket();
+        System.out.println(receivedData);
+
+        boolean register = true;
+
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            if (temp.getName().equals(receivedData)) {
+                register = false;
+                sendingDataBuffer = "REGISTER-DENIED".getBytes();
+                sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                break;
+            }
+        }
+        if (register) {
+            sendingDataBuffer = "REGISTERED".getBytes();
+            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+            ClientHandler registerClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
+            clients.add(registerClient);
+
+        }
+        System.out.println(clients.toString());
+    }
+
+    public static void main(String[] args) throws IOException {
+        try {
+            // Instantiate a new DatagramSocket to receive responses from the client
+            serverSocket = new DatagramSocket(SERVICE_PORT);
+
+            while (!serverSocket.isClosed()) {
+                System.out.println("Waiting for a client to connect...");
+                receiveUDPPacket();
+                System.out.println(receivedData);
+                sendingDataBuffer = "Connection established".getBytes();
+                sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                registerClient();
+
+
+                // Close the socket connection
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
 }
