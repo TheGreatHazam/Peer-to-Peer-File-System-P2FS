@@ -1,16 +1,21 @@
 import java.net.InetAddress;
 
 public class ClientHandler {
+    private static int  counter = 1;
+    private int RQId;
     private int UDPPort;
     private int TCPPort;
     private InetAddress address;
     private String Name;
 
     public ClientHandler(int UDPPort, int TCPPort, InetAddress address, String name) {
+        //Increment RQID per creating of client.
+        this.RQId = counter;
         this.UDPPort = UDPPort;
         this.TCPPort = TCPPort;
         this.address = address;
-        Name = name;
+        this.Name = name;
+        counter++;
     }
 
     public int getUDPPort() {
@@ -42,8 +47,10 @@ public class ClientHandler {
     }
 
     public void setName(String name) {
-        Name = name;
+        name = name;
     }
+
+    public int getRQID(){ return RQId;}
 
     @Override
     public String toString() {
@@ -52,6 +59,7 @@ public class ClientHandler {
                 ", TCPPort=" + TCPPort +
                 ", address=" + address +
                 ", Name='" + Name + '\'' +
+                ", RQID ='"+RQId +
                 '}';
     }
 }
