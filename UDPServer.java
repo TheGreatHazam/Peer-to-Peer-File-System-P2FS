@@ -42,26 +42,27 @@ public class UDPServer {
         receivedData = new String(receivingPacket.getData(), 0, receivingPacket.getLength());
     }
 
+    public static void registerClient() {
+        receiveUDPPacket();
+        System.out.println(receivedData);
+
+        ClientHandler registerClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
+        clients.add(registerClient);
+        System.out.println(clients.toString());
+    }
+
     public static void main(String[] args) throws IOException {
         try {
             // Instantiate a new DatagramSocket to receive responses from the client
-             serverSocket = new DatagramSocket(SERVICE_PORT);
+            serverSocket = new DatagramSocket(SERVICE_PORT);
 
             while (!serverSocket.isClosed()) {
                 System.out.println("Waiting for a client to connect...");
                 receiveUDPPacket();
                 System.out.println(receivedData);
-
-
-                sendingDataBuffer = "Connection established \n Register username".getBytes();
+                sendingDataBuffer = "Connection established".getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-
-                receiveUDPPacket();
-                System.out.println(receivedData);
-
-                ClientHandler registerClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
-                clients.add(registerClient);
-                System.out.println(clients.toString());
+                registerClient();
 
 
                 // Close the socket connection

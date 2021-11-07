@@ -26,7 +26,7 @@ public class UDPClient {
     public static DatagramPacket sendingPacket;
     private static DatagramPacket receivingPacket;
     private static String receivedData;
-
+    public static Scanner  scanner = new Scanner(System.in);
 
     public static void sendUDPPacket() {
         sendingPacket = new DatagramPacket(sendingDataBuffer, sendingDataBuffer.length, IPAddress, SERVICE_PORT);
@@ -52,6 +52,12 @@ public class UDPClient {
 
 
     }
+    public static void register(){while (!register) {
+        String username = scanner.nextLine();
+        sendingDataBuffer = username.getBytes();
+        sendUDPPacket();
+        //if receive register succesfull then it exits the loop if not resend username
+    }}
 
     public static void main(String[] args) throws IOException {
         try {
@@ -61,7 +67,7 @@ public class UDPClient {
 
             // Get the IP address of the server
             IPAddress = InetAddress.getByName("localhost");
-            Scanner scanner = new Scanner(System.in);
+
 
              /* Converting data to bytes and
               storing them in the sending buffer */
@@ -71,15 +77,12 @@ public class UDPClient {
             sendUDPPacket();
             receiveUDPPacket();
             System.out.println("Sent from the server: " + receivedData);
+           // register();
+            while (true){}
 
 
-            while (!register) {
-                String username = scanner.nextLine();
-                sendingDataBuffer = username.getBytes();
-                sendUDPPacket();
-                //if receive register succesfull then it exits the loop if not resend username
-            }
-            clientSocket.close();
+
+            //clientSocket.close();
 
 
         } catch (SocketException e) {
