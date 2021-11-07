@@ -50,7 +50,6 @@ public class UDPClient {
             e.printStackTrace();
         }
 
-
     }
     public static void register(){
         System.out.println("Register the clients Username");
@@ -62,6 +61,15 @@ public class UDPClient {
         System.out.println(receivedData);
     }
 
+    public static void deregister(){
+        System.out.println("De-Registering Client Name");
+        String username = scanner.nextLine();
+        sendingDataBuffer = username.getBytes();
+        sendUDPPacket();
+        receiveUDPPacket();
+        System.out.println("Sent from the server: " + receivedData);
+    }
+
     public static void main(String[] args) throws IOException {
         try {
       /* Instantiate client socket. 
@@ -70,7 +78,6 @@ public class UDPClient {
 
             // Get the IP address of the servera
             IPAddress = InetAddress.getByName("localhost");
-
 
              /* Converting data to bytes and
               storing them in the sending buffer */
@@ -81,12 +88,9 @@ public class UDPClient {
             receiveUDPPacket();
             System.out.println("Sent from the server: " + receivedData);
             register();
-
-
-
+            deregister();
 
             clientSocket.close();
-
 
         } catch (SocketException e) {
             e.printStackTrace();

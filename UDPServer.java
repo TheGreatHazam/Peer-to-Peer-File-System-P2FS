@@ -43,26 +43,41 @@ public class UDPServer {
     }
 
     public static void registerClient() {
-        receiveUDPPacket();
-        System.out.println(receivedData);
-
         boolean register = true;
+        receiveUDPPacket();
 
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(receivedData)) {
                 register = false;
-                sendingDataBuffer = "REGISTER-DENIED".getBytes();
+                String message = "REGISTER-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "USERNAME TAKEN";
+                sendingDataBuffer = message.getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 break;
             }
         }
         if (register) {
-            sendingDataBuffer = "REGISTERED".getBytes();
-            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
             ClientHandler registerClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
             clients.add(registerClient);
+            String message = "REGISTERED" + " | " + registerClient.getRQID();
+            sendingDataBuffer = message.getBytes();
+            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+        }
+        System.out.println(clients.toString());
+    }
 
+    public static void deregisterClient() {
+        receiveUDPPacket();
+
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            if (temp.getName().equals(receivedData)) {
+                String message = "DE-REGISTER " + " | " + String.valueOf(temp.getRQID())+" | "+ temp.getName();
+                sendingDataBuffer = message.getBytes();
+                sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                clients.remove(i);
+                break;
+            }
         }
         System.out.println(clients.toString());
     }
@@ -79,6 +94,7 @@ public class UDPServer {
                 sendingDataBuffer = "Connection established".getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 registerClient();
+                deregisterClient();
 
 
                 // Close the socket connection
