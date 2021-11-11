@@ -82,6 +82,30 @@ public class UDPServer {
         System.out.println(clients.toString());
     }
 
+    public static void publishClient(){
+        receiveUDPPacket();
+         boolean publishBool = true;
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            if (!(temp.getName().equals(receivedData))) { //if user does not exist
+                publishBool = false;
+                String message = "PUBLISH-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "USERNAME DOES NOT EXIST";
+                sendingDataBuffer = message.getBytes();
+                sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                break;
+            }
+        }
+        if (publishBool){
+            ClientHandler publishClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
+            System.out.println(receivedData);
+            String message = "PUBLISHED" + " | " + publishClient.getRQID();
+            sendingDataBuffer = message.getBytes();
+            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+        }
+
+        System.out.println("published files to client");
+    }
+
     public static void main(String[] args) throws IOException {
         try {
             // Instantiate a new DatagramSocket to receive responses from the client

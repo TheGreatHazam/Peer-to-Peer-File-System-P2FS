@@ -21,7 +21,7 @@ public class TCPClient {
             out.flush();
         }
     }
-    public static void main(String[] args) throws Exception { //connect tot the server by entering the server IP address and port number
+    public static void main(String[] args) throws Exception { //connect to the server by entering the server IP address and port number
         TCPClient client = new TCPClient(
                 InetAddress.getByName(args[0]), 
                 Integer.parseInt(args[1]));

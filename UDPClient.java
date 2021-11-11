@@ -1,4 +1,7 @@
 import javax.imageio.spi.RegisterableService;
+
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -6,6 +9,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Scanner;
 import java.util.SplittableRandom;
+import java.io.InputStreamReader;
 
 //For clients to talk to the server
 public class UDPClient {
@@ -70,10 +74,30 @@ public class UDPClient {
         System.out.println("Sent from the server: " + receivedData);
     }
 
+    public static void publish(){
+        System.out.println("Publish list of available files in ./Files/");
+        File folder = new File("./Files/");
+        File[] files = folder.listFiles();
+
+        for (File file : files){
+            for (int i = 0; i < files.length; i++){
+                String fileString = file.getName();
+                System.out.println(file.getName());
+                sendingDataBuffer = fileString.getBytes();
+                sendUDPPacket();
+            }
+        }
+        
+        
+        receiveUDPPacket();
+        System.out.println("Sent from the server: " + receivedData);
+    }
+
     public static void main(String[] args) throws IOException {
         try {
       /* Instantiate client socket. 
       No need to bind to a specific port */
+            BufferedReader userReader = new BufferedReader(new InputStreamReader(System.in));
             clientSocket = new DatagramSocket();
 
             // Get the IP address of the servera
@@ -87,9 +111,27 @@ public class UDPClient {
             sendUDPPacket();
             receiveUDPPacket();
             System.out.println("Sent from the server: " + receivedData);
-            register();
-            deregister();
-
+            
+            while (clientSocket != null){
+                System.out.println("Input 1 for register, 2 for publish, 3 for deregister and any other input to close connection");
+                int userInput = Integer.parseInt(userReader.readLine());
+                switch(userInput){
+                    case 1:
+                        register();
+                        continue;
+                    case 2:
+                        publish();
+                        continue;
+                    case 3:
+                        deregister();
+                        continue;
+                    default:
+                        System.out.println("Exiting");
+                        break;
+                }
+                break;
+            }
+            
             clientSocket.close();
 
         } catch (SocketException e) {
