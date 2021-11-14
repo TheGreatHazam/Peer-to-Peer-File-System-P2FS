@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 public class UDPClient {
     /* The server port to which
     the client socket is going to connect */
-    public final static int SERVICE_PORT = 3030;
+    public final static int SERVICE_PORT = 4040;
     public static DatagramSocket clientSocket;
 
     private static boolean register = false;
@@ -30,7 +30,7 @@ public class UDPClient {
     public static DatagramPacket sendingPacket;
     private static DatagramPacket receivingPacket;
     private static String receivedData;
-    public static Scanner  scanner = new Scanner(System.in);
+    public static Scanner scanner = new Scanner(System.in);
 
     public static void sendUDPPacket() {
         sendingPacket = new DatagramPacket(sendingDataBuffer, sendingDataBuffer.length, IPAddress, SERVICE_PORT);
@@ -55,7 +55,8 @@ public class UDPClient {
         }
 
     }
-    public static void register(){
+
+    public static void register() {
         System.out.println("Register the clients Username");
         String username = scanner.nextLine();
         sendingDataBuffer = username.getBytes();
@@ -65,7 +66,7 @@ public class UDPClient {
         System.out.println(receivedData);
     }
 
-    public static void deregister(){
+    public static void deregister() {
         System.out.println("De-Registering Client Name");
         String username = scanner.nextLine();
         sendingDataBuffer = username.getBytes();
@@ -74,21 +75,21 @@ public class UDPClient {
         System.out.println("Sent from the server: " + receivedData);
     }
 
-    public static void publish(){
+    public static void publish() {
         System.out.println("Publish list of available files in ./Files/");
         File folder = new File("./Files/");
         File[] files = folder.listFiles();
 
-        for (File file : files){
-            for (int i = 0; i < files.length; i++){
+        for (File file : files) {
+            for (int i = 0; i < files.length; i++) {
                 String fileString = file.getName();
                 System.out.println(file.getName());
                 sendingDataBuffer = fileString.getBytes();
                 sendUDPPacket();
             }
         }
-        
-        
+
+
         receiveUDPPacket();
         System.out.println("Sent from the server: " + receivedData);
     }
@@ -111,18 +112,34 @@ public class UDPClient {
             sendUDPPacket();
             receiveUDPPacket();
             System.out.println("Sent from the server: " + receivedData);
-            
-            while (clientSocket != null){
+
+            while (clientSocket != null) {
                 System.out.println("Input 1 for register, 2 for publish, 3 for deregister and any other input to close connection");
                 int userInput = Integer.parseInt(userReader.readLine());
-                switch(userInput){
+                String command;
+                switch (userInput) {
                     case 1:
+                        command = "Register";
+                        sendingDataBuffer = command.getBytes();
+                        sendUDPPacket();
+                        receiveUDPPacket();
+                        System.out.println(receivedData);
                         register();
                         continue;
                     case 2:
+                        command = "Publish";
+                        sendingDataBuffer = command.getBytes();
+                        sendUDPPacket();
+                        receiveUDPPacket();
+                        System.out.println(receivedData);
                         publish();
                         continue;
                     case 3:
+                        command = "Deregister";
+                        sendingDataBuffer = command.getBytes();
+                        sendUDPPacket();
+                        receiveUDPPacket();
+                        System.out.println(receivedData);
                         deregister();
                         continue;
                     default:
@@ -131,7 +148,7 @@ public class UDPClient {
                 }
                 break;
             }
-            
+
             clientSocket.close();
 
         } catch (SocketException e) {
