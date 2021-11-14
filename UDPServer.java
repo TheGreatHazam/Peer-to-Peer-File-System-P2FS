@@ -8,7 +8,7 @@ import java.util.ArrayList;
 //For communication between client and server
 public class UDPServer {
     // Server UDP socket runs at this port
-    public final static int SERVICE_PORT = 3030;
+    public final static int SERVICE_PORT = 4040;
     private static ArrayList clients = new ArrayList<ClientHandler>();
     public static DatagramSocket serverSocket;
     public static byte[] sendingDataBuffer = new byte[1024];
@@ -72,7 +72,7 @@ public class UDPServer {
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(receivedData)) {
-                String message = "DE-REGISTER " + " | " + String.valueOf(temp.getRQID())+" | "+ temp.getName();
+                String message = "DE-REGISTER " + " | " + String.valueOf(temp.getRQID()) + " | " + temp.getName();
                 sendingDataBuffer = message.getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 clients.remove(i);
@@ -82,9 +82,9 @@ public class UDPServer {
         System.out.println(clients.toString());
     }
 
-    public static void publishClient(){
+    public static void publishClient() {
         receiveUDPPacket();
-         boolean publishBool = true;
+        boolean publishBool = true;
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (!(temp.getName().equals(receivedData))) { //if user does not exist
@@ -95,7 +95,7 @@ public class UDPServer {
                 break;
             }
         }
-        if (publishBool){
+        if (publishBool) {
             ClientHandler publishClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
             System.out.println(receivedData);
             String message = "PUBLISHED" + " | " + publishClient.getRQID();
@@ -117,11 +117,35 @@ public class UDPServer {
                 System.out.println(receivedData);
                 sendingDataBuffer = "Connection established".getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-                registerClient();
-                deregisterClient();
-                publishClient();
 
-                // Close the socket connection
+                while (true) {
+                    receiveUDPPacket();
+                    System.out.println(receivedData);
+
+                    switch (receivedData) {
+                        case "Register":
+
+                            sendingDataBuffer = "Server registerclient is running".getBytes();
+                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                            registerClient();
+                            continue;
+                        case "Publish":
+
+                            sendingDataBuffer = "Server publishclient is running".getBytes();
+                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                            publishClient();
+
+                            continue;
+                        case "Deregister":
+
+                            sendingDataBuffer = "Server deregisterclient is running".getBytes();
+                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                            deregisterClient();
+                            continue;
+                        default:
+                            break;
+                    }
+                }
             }
         } catch (SocketException e) {
             e.printStackTrace();
