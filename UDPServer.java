@@ -119,7 +119,7 @@ public class UDPServer {
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 registerClient();
                 deregisterClient();
-
+                publishClient();
 
                 // Close the socket connection
             }
