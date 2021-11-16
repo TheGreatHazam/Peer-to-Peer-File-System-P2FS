@@ -6,11 +6,12 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 
+
 //For communication between client and server
 public class UDPServer {
     // Server UDP socket runs at this port
     public final static int SERVICE_PORT = 4040;
-    private static ArrayList clients = new ArrayList<ClientHandler>();
+    private static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     public static DatagramSocket serverSocket;
     public static byte[] sendingDataBuffer = new byte[1024];
     public static byte[] receivingDataBuffer = new byte[1024];
@@ -84,18 +85,23 @@ public class UDPServer {
     }
 
     public static void publishClient() {
-
         receiveUDPPacket();
         String [] listofCommands = receivedData.split(" ");
         String clientName = listofCommands[0];
-        System.out.println( "client name according to listofcommands [0]"+clientName);
+        // String [] listofFileReceived = listofCommands[1].split(",");
+        System.out.println("testing files received : " + listofCommands);
         File[] files = new File("./Files/").listFiles();
         boolean isFilePublished = false;
         boolean publishBool = true;
 
+
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
-            System.out.println( "clients.get i"+temp);
+            // System.out.println("testing temp : " + temp);
+            
+            System.out.println("testing clineetName: " + String.valueOf(temp.getName()));
+            System.out.println("testing clineetName: " + clientName);
+           
             if (!(temp.getName().equals(clientName))) { //if user does not exist
                 publishBool = false;
                 String message = "PUBLISH-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "NAME DOES NOT EXIST";
@@ -107,7 +113,8 @@ public class UDPServer {
         if (publishBool){
             for (int i = 0; i < clients.size(); i++) {
                 ClientHandler temp = (ClientHandler) clients.get(i);
-                if ((temp.getName().equals(clientName))) {
+                String temporary = String.valueOf(temp.getName());
+                if ((temporary.equals(clientName))) {
                     for (int j = 0; j < listofCommands.length; j++) {
                         for (File file : files) {
                             String fileString = file.getName();
@@ -132,38 +139,6 @@ public class UDPServer {
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-        // receiveUDPPacket();
-        // boolean publishBool = true;
-        // for (int i = 0; i < clients.size(); i++) {
-        //     ClientHandler temp = (ClientHandler) clients.get(i);
-        //     if (!(temp.getName().equals(receivedData))) { //if user does not exist
-        //         publishBool = false;
-        //         String message = "PUBLISH-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "USERNAME DOES NOT EXIST";
-        //         sendingDataBuffer = message.getBytes();
-        //         sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-        //         break;
-        //     }
-        // }
-        // if (publishBool) {
-        //     ClientHandler publishClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
-        //     System.out.println(receivedData);
-        //     String message = "PUBLISHED" + " | " + publishClient.getRQID();
-        //     sendingDataBuffer = message.getBytes();
-        //     sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-        // }
-
-        // System.out.println("published files to client");
     }
 
     public static void main(String[] args) throws IOException {

@@ -7,8 +7,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.SplittableRandom;
+import java.util.jar.Attributes.Name;
 import java.io.InputStreamReader;
 
 //For clients to talk to the server
@@ -19,6 +21,7 @@ public class UDPClient {
     public static DatagramSocket clientSocket;
 
     private static boolean register = false;
+    private static String clientName;
 
     // Get the IP address of the server
     public static InetAddress IPAddress;
@@ -27,6 +30,9 @@ public class UDPClient {
     public static byte[] sendingDataBuffer = new byte[1024];
     public static byte[] receivingDataBuffer = new byte[1024];
 
+    static String ListofFiles = "";
+
+    private static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     public static DatagramPacket sendingPacket;
     private static DatagramPacket receivingPacket;
     private static String receivedData;
@@ -59,6 +65,7 @@ public class UDPClient {
     public static void register() {
         System.out.println("Register the clients Username");
         String username = scanner.nextLine();
+
         sendingDataBuffer = username.getBytes();
         sendUDPPacket();
         //if receive register succesfull then it exits the loop if not resend username
@@ -78,19 +85,20 @@ public class UDPClient {
     public static void publish(){
         File folder = new File("./Peer-to-Peer-File-System-P2FS/Files/");
         File[] files = folder.listFiles();
-
-        if (files != null){
-            System.out.println("Published list of available files:");
-            for (File file: files){
-                String fileString = file.getName();
-                System.out.println(fileString);
-                sendingDataBuffer = fileString.getBytes();
+        clientName = ClientHandler.getName();
+            if (files != null){
+                System.out.println("Published list of available files:");
+                for (File file: files){
+                    ListofFiles += " " +file.getName();
+                }
+                String output = clientName + ListofFiles;
+                System.out.println(output);
+                sendingDataBuffer = output.getBytes();
                 sendUDPPacket();
+            }else{
+                System.out.println("There are no files in ./Files/ directory");
             }
-        }else{
-            System.out.println("There are no files in ./Files/ directory");
-        }
-
+        
         receiveUDPPacket();
         System.out.println("Sent from the server: " + receivedData);
     }
