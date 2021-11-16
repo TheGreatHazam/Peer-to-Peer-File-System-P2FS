@@ -75,22 +75,35 @@ public class UDPClient {
     }
 
     public static void publish(){
-        System.out.println("Publish list of available files in ./Files/");
-        File folder = new File("./Files/");
+        File folder = new File("./Peer-to-Peer-File-System-P2FS/Files/");
         File[] files = folder.listFiles();
 
-        for (File file : files){
-            for (int i = 0; i < files.length; i++){
+        if (files != null){
+            System.out.println("Published list of available files:");
+            for (File file: files){
                 String fileString = file.getName();
-                System.out.println(file.getName());
+                System.out.println(fileString);
                 sendingDataBuffer = fileString.getBytes();
                 sendUDPPacket();
             }
+        }else{
+            System.out.println("There are no files in ./Files/ directory");
         }
-        
-        
+
         receiveUDPPacket();
         System.out.println("Sent from the server: " + receivedData);
+        // for (File file : files){
+        //     for (int i = 0; i < files.length; i++){
+        //         String fileString = file.getName();
+        //         System.out.println(file.getName());
+        //         sendingDataBuffer = fileString.getBytes();
+        //         sendUDPPacket();
+        //     }
+        // }
+        
+        
+        // receiveUDPPacket();
+        // System.out.println("Sent from the server: " + receivedData);
     }
 
     public static void main(String[] args) throws IOException {
