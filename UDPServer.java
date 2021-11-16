@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -83,27 +84,86 @@ public class UDPServer {
     }
 
     public static void publishClient() {
+
         receiveUDPPacket();
+        String [] listofCommands = receivedData.split(" ");
+        String clientName = listofCommands[0];
+        System.out.println( "client name according to listofcommands [0]"+clientName);
+        File[] files = new File("./Files/").listFiles();
+        boolean isFilePublished = false;
         boolean publishBool = true;
+
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
-            if (!(temp.getName().equals(receivedData))) { //if user does not exist
+            System.out.println( "clients.get i"+temp);
+            if (!(temp.getName().equals(clientName))) { //if user does not exist
                 publishBool = false;
-                String message = "PUBLISH-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "USERNAME DOES NOT EXIST";
+                String message = "PUBLISH-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "NAME DOES NOT EXIST";
                 sendingDataBuffer = message.getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 break;
             }
         }
-        if (publishBool) {
-            ClientHandler publishClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
-            System.out.println(receivedData);
-            String message = "PUBLISHED" + " | " + publishClient.getRQID();
-            sendingDataBuffer = message.getBytes();
-            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+        if (publishBool){
+            for (int i = 0; i < clients.size(); i++) {
+                ClientHandler temp = (ClientHandler) clients.get(i);
+                if ((temp.getName().equals(clientName))) {
+                    for (int j = 0; j < listofCommands.length; j++) {
+                        for (File file : files) {
+                            String fileString = file.getName();
+                            System.out.println(fileString);
+                            isFilePublished = true;
+                        }
+
+                        if(isFilePublished) {
+                            System.out.println(receivedData);
+                            String message = "PUBLISH" + " | " + temp.getRQID();
+                            sendingDataBuffer = message.getBytes();
+                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                        }
+
+                        else{
+                            System.out.println(receivedData);
+                            String message = "PUBLISHED-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "Exception Occured";
+                            sendingDataBuffer = message.getBytes();
+                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                        }
+                    }
+                }
+            }
         }
 
-        System.out.println("published files to client");
+
+
+
+
+
+
+
+
+
+
+        // receiveUDPPacket();
+        // boolean publishBool = true;
+        // for (int i = 0; i < clients.size(); i++) {
+        //     ClientHandler temp = (ClientHandler) clients.get(i);
+        //     if (!(temp.getName().equals(receivedData))) { //if user does not exist
+        //         publishBool = false;
+        //         String message = "PUBLISH-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "USERNAME DOES NOT EXIST";
+        //         sendingDataBuffer = message.getBytes();
+        //         sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+        //         break;
+        //     }
+        // }
+        // if (publishBool) {
+        //     ClientHandler publishClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
+        //     System.out.println(receivedData);
+        //     String message = "PUBLISHED" + " | " + publishClient.getRQID();
+        //     sendingDataBuffer = message.getBytes();
+        //     sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+        // }
+
+        // System.out.println("published files to client");
     }
 
     public static void main(String[] args) throws IOException {

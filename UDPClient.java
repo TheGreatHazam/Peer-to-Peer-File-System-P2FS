@@ -93,18 +93,6 @@ public class UDPClient {
 
         receiveUDPPacket();
         System.out.println("Sent from the server: " + receivedData);
-        // for (File file : files){
-        //     for (int i = 0; i < files.length; i++){
-        //         String fileString = file.getName();
-        //         System.out.println(file.getName());
-        //         sendingDataBuffer = fileString.getBytes();
-        //         sendUDPPacket();
-        //     }
-        // }
-        
-        
-        // receiveUDPPacket();
-        // System.out.println("Sent from the server: " + receivedData);
     }
 
     public static void main(String[] args) throws IOException {
