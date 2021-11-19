@@ -70,6 +70,7 @@ public class UDPServer {
 
     public static void deregisterClient() {
         receiveUDPPacket();
+        boolean deregister=true;
 
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
@@ -78,67 +79,53 @@ public class UDPServer {
                 sendingDataBuffer = message.getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 clients.remove(i);
+                deregister=false;
                 break;
             }
+        }
+        if (deregister){
+            String message = "DE-REGISTER  | failed";
+            sendingDataBuffer = message.getBytes();
+            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
         }
         System.out.println(clients.toString());
     }
 
     public static void publishClient() {
         receiveUDPPacket();
+        String clientName="";
+        ArrayList<String> files=new ArrayList<String>();
         String [] listofCommands = receivedData.split(" ");
-        String clientName = listofCommands[0];
-        // String [] listofFileReceived = listofCommands[1].split(",");
-        System.out.println("testing files received : " + listofCommands);
-        File[] files = new File("./Files/").listFiles();
-        boolean isFilePublished = false;
-        boolean publishBool = true;
+        for (int i=0;i<listofCommands.length;i++){
+            if (i==0) {
+                 clientName = listofCommands[0];
+            }
+            else {files.add(listofCommands[i]);}
+        }
 
-
+        System.out.println(clientName);
+        System.out.println(files);
+        boolean clientnameMatch=false;
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
-            // System.out.println("testing temp : " + temp);
-            
-            System.out.println("testing clineetName: " + String.valueOf(temp.getName()));
-            System.out.println("testing clineetName: " + clientName);
-           
-            if (!(temp.getName().equals(clientName))) { //if user does not exist
-                publishBool = false;
-                String message = "PUBLISH-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "NAME DOES NOT EXIST";
+            if (temp.getName().equals(clientName)) {
+               clients.get(i).setFileList(files);
+               clientnameMatch=true;
+                String message = "PUBLISH" + " | " + temp.getRQID();
+            }
+        }
+        if(!clientnameMatch){
+
+        }
+
+
+                String message = "PUBLISH-DENIED" + " |  | " + "NAME DOES NOT EXIST";
+
                 sendingDataBuffer = message.getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-                break;
-            }
-        }
-        if (publishBool){
-            for (int i = 0; i < clients.size(); i++) {
-                ClientHandler temp = (ClientHandler) clients.get(i);
-                String temporary = String.valueOf(temp.getName());
-                if ((temporary.equals(clientName))) {
-                    for (int j = 0; j < listofCommands.length; j++) {
-                        for (File file : files) {
-                            String fileString = file.getName();
-                            System.out.println(fileString);
-                            isFilePublished = true;
-                        }
 
-                        if(isFilePublished) {
-                            System.out.println(receivedData);
-                            String message = "PUBLISH" + " | " + temp.getRQID();
-                            sendingDataBuffer = message.getBytes();
-                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-                        }
 
-                        else{
-                            System.out.println(receivedData);
-                            String message = "PUBLISHED-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "Exception Occured";
-                            sendingDataBuffer = message.getBytes();
-                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-                        }
-                    }
-                }
-            }
-        }
+        System.out.println(clients.toString());
     }
 
     public static void main(String[] args) throws IOException {
@@ -152,35 +139,12 @@ public class UDPServer {
                 System.out.println(receivedData);
                 sendingDataBuffer = "Connection established".getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
+                registerClient();
+                deregisterClient();
+                publishClient();
 
-                while (true) {
-                    receiveUDPPacket();
-                    System.out.println(receivedData);
 
-                    switch (receivedData) {
-                        case "Register":
-
-                            sendingDataBuffer = "Server registerclient is running".getBytes();
-                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-                            registerClient();
-                            continue;
-                        case "Publish":
-
-                            sendingDataBuffer = "Server publishclient is running".getBytes();
-                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-                            publishClient();
-
-                            continue;
-                        case "Deregister":
-
-                            sendingDataBuffer = "Server deregisterclient is running".getBytes();
-                            sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
-                            deregisterClient();
-                            continue;
-                        default:
-                            break;
-                    }
-                }
+                // Close the socket connection
             }
         } catch (SocketException e) {
             e.printStackTrace();

@@ -20,6 +20,8 @@ public class UDPClient {
     public final static int SERVICE_PORT = 4040;
     public static DatagramSocket clientSocket;
 
+    private  static String name;
+
     private static boolean register = false;
     private static String clientName;
 
@@ -30,7 +32,6 @@ public class UDPClient {
     public static byte[] sendingDataBuffer = new byte[1024];
     public static byte[] receivingDataBuffer = new byte[1024];
 
-    static String ListofFiles = "";
 
     private static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     public static DatagramPacket sendingPacket;
@@ -64,11 +65,9 @@ public class UDPClient {
 
     public static void register() {
         System.out.println("Register the clients Username");
-        String username = scanner.nextLine();
-
-        sendingDataBuffer = username.getBytes();
+        name = scanner.nextLine();
+        sendingDataBuffer = name.getBytes();
         sendUDPPacket();
-        //if receive register succesfull then it exits the loop if not resend username
         receiveUDPPacket();
         System.out.println(receivedData);
     }
@@ -83,21 +82,20 @@ public class UDPClient {
     }
 
     public static void publish(){
-        File folder = new File("./Peer-to-Peer-File-System-P2FS/Files/");
+        String ListofFiles =name;
+
+        File folder = new File("./Files");
         File[] files = folder.listFiles();
-        clientName = ClientHandler.getName();
-            if (files != null){
-                System.out.println("Published list of available files:");
+           if (files != null){
                 for (File file: files){
                     ListofFiles += " " +file.getName();
                 }
-                String output = clientName + ListofFiles;
-                System.out.println(output);
-                sendingDataBuffer = output.getBytes();
+               System.out.println("sending "+ListofFiles);
+                sendingDataBuffer =ListofFiles.getBytes();
                 sendUDPPacket();
-            }else{
-                System.out.println("There are no files in ./Files/ directory");
-            }
+    }
+        else{
+            System.out.println("There are no files in ./Files/ directory");}
         
         receiveUDPPacket();
         System.out.println("Sent from the server: " + receivedData);
@@ -105,9 +103,8 @@ public class UDPClient {
 
     public static void main(String[] args) throws IOException {
         try {
-      /* Instantiate client socket. 
+      /* Instantiate client socket.
       No need to bind to a specific port */
-            BufferedReader userReader = new BufferedReader(new InputStreamReader(System.in));
             clientSocket = new DatagramSocket();
 
             // Get the IP address of the servera
@@ -121,42 +118,9 @@ public class UDPClient {
             sendUDPPacket();
             receiveUDPPacket();
             System.out.println("Sent from the server: " + receivedData);
-
-            while (clientSocket != null) {
-                System.out.println("Input 1 for register, 2 for publish, 3 for deregister and any other input to close connection");
-                int userInput = Integer.parseInt(userReader.readLine());
-                String command;
-                switch (userInput) {
-                    case 1:
-                        command = "Register";
-                        sendingDataBuffer = command.getBytes();
-                        sendUDPPacket();
-                        receiveUDPPacket();
-                        System.out.println(receivedData);
-                        register();
-                        continue;
-                    case 2:
-                        command = "Publish";
-                        sendingDataBuffer = command.getBytes();
-                        sendUDPPacket();
-                        receiveUDPPacket();
-                        System.out.println(receivedData);
-                        publish();
-                        continue;
-                    case 3:
-                        command = "Deregister";
-                        sendingDataBuffer = command.getBytes();
-                        sendUDPPacket();
-                        receiveUDPPacket();
-                        System.out.println(receivedData);
-                        deregister();
-                        continue;
-                    default:
-                        System.out.println("Exiting");
-                        break;
-                }
-                break;
-            }
+            register();
+            deregister();
+            publish();
 
             clientSocket.close();
 

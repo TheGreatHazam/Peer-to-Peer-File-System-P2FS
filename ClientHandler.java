@@ -59,8 +59,8 @@ public class ClientHandler {
     
     }
         
-    public  void setFileList(String fileList) {
-        this.fileList.add(fileList);
+    public  void setFileList(ArrayList<String> listofFiles) {
+        this.fileList=listofFiles;
     }
 
 
