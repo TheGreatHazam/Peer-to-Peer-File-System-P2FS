@@ -32,8 +32,6 @@ public class UDPClient {
     public static byte[] sendingDataBuffer = new byte[1024];
     public static byte[] receivingDataBuffer = new byte[1024];
 
-
-    private static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     public static DatagramPacket sendingPacket;
     private static DatagramPacket receivingPacket;
     private static String receivedData;
@@ -83,7 +81,6 @@ public class UDPClient {
 
     public static void publish(){
         String ListofFiles =name;
-
         File folder = new File("./Files");
         File[] files = folder.listFiles();
            if (files != null){

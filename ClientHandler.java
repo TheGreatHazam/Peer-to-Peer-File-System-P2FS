@@ -2,22 +2,27 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 
 public class ClientHandler {
-    private static int  counter = 1;
     private int RQId;
     private int UDPPort;
     private int TCPPort;
     private InetAddress address;
-    private static String name;
+    private  String name;
     private ArrayList<String> fileList;
 
-    public ClientHandler(int UDPPort, int TCPPort, InetAddress address, String name) {
-        //Increment RQID per creating of client.
-        this.RQId = counter;
+    public ClientHandler(int RQId, int UDPPort, int TCPPort, InetAddress address, String name) {
+        this.RQId = RQId;
         this.UDPPort = UDPPort;
         this.TCPPort = TCPPort;
         this.address = address;
         this.name = name;
-        counter++;
+    }
+
+    public int getRQId() {
+        return RQId;
+    }
+
+    public void setRQId(int RQId) {
+        this.RQId = RQId;
     }
 
     public int getUDPPort() {
@@ -44,34 +49,31 @@ public class ClientHandler {
         this.address = address;
     }
 
-    public static String getName() {
+    public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
-    
-    public int getRQID(){ return RQId;}
 
-    public ArrayList getFileList() {
-        return fileList; 
-    
-    }
-        
-    public  void setFileList(ArrayList<String> listofFiles) {
-        this.fileList=listofFiles;
+    public ArrayList<String> getFileList() {
+        return fileList;
     }
 
+    public void setFileList(ArrayList<String> fileList) {
+        this.fileList = fileList;
+    }
 
     @Override
     public String toString() {
-        return " ClientHandler: " + " " +
-                "UDPPort=" + UDPPort + " " +
-                "| TCPPort=" + TCPPort + " " +
-                "| address=" + address + " " +
-                "| Name=" + name + " " +
-                "| RQID ="+ RQId + " " +
-                "| fileList = " + fileList + " ";
+        return "ClientHandler{" +
+                "RQId=" + RQId +
+                ", UDPPort=" + UDPPort +
+                ", TCPPort=" + TCPPort +
+                ", address=" + address +
+                ", name='" + name + '\'' +
+                ", fileList=" + fileList +
+                "\n";
     }
 }

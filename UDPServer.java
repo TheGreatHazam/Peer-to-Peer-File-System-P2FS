@@ -52,16 +52,16 @@ public class UDPServer {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(receivedData)) {
                 register = false;
-                String message = "REGISTER-DENIED" + " | " + String.valueOf(temp.getRQID()) + " | " + "USERNAME TAKEN";
+                String message = "REGISTER-DENIED" + " | "  + " | " + "USERNAME TAKEN";
                 sendingDataBuffer = message.getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 break;
             }
         }
         if (register) {
-            ClientHandler registerClient = new ClientHandler(receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
+            ClientHandler registerClient = new ClientHandler(1,receivingPacket.getPort(), 3000, receivingPacket.getAddress(), receivedData);
             clients.add(registerClient);
-            String message = "REGISTERED" + " | " + registerClient.getRQID();
+            String message = "REGISTERED" + " | " ;
             sendingDataBuffer = message.getBytes();
             sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
         }
@@ -75,7 +75,7 @@ public class UDPServer {
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(receivedData)) {
-                String message = "DE-REGISTER " + " | " + String.valueOf(temp.getRQID()) + " | " + temp.getName();
+                String message = "DE-REGISTER  | " + temp.getName();
                 sendingDataBuffer = message.getBytes();
                 sendUDPPacket(receivingPacket.getAddress(), receivingPacket.getPort());
                 clients.remove(i);
@@ -111,14 +111,12 @@ public class UDPServer {
             if (temp.getName().equals(clientName)) {
                clients.get(i).setFileList(files);
                clientnameMatch=true;
-                String message = "PUBLISH" + " | " + temp.getRQID();
+                String message = "PUBLISH" + " | ";
             }
         }
         if(!clientnameMatch){
 
         }
-
-
                 String message = "PUBLISH-DENIED" + " |  | " + "NAME DOES NOT EXIST";
 
                 sendingDataBuffer = message.getBytes();
