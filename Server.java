@@ -104,7 +104,6 @@ public class Server {
                 String messageFromClient= new String(receivePacket.getData(),0, receivePacket.getLength());
                 System.out.println("Client: "+messageFromClient);
 
-
                 String messageToClient=response(messageFromClient,receivePacket);
                 InetAddress inetAddress= receivePacket.getAddress();
                 int port=receivePacket.getPort();
