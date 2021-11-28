@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Scanner;
+
 
 
 public class Client {
@@ -14,6 +16,7 @@ public class Client {
     private InetAddress inetAddress;
     private static int RQ = 0;
     private String name;
+    private String sendingFile;
 
     public Client(DatagramSocket datagramSocket, InetAddress inetAddress) {
         this.datagramSocket = datagramSocket;
@@ -47,39 +50,81 @@ public class Client {
 
     private String input() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Enter \n\t1 to register \n\t2 to deregister\n\t3 to publish");
+        System.out.println("Enter \n\t1 to register \n\t2 to deregister\n\t3 to publish\n\t4 to remove\n\t5 to retrieve\n\t6 to retrieve specific\n\t7 to search for specific file\n\t8 to download a file\n\t9 to update your contact info\n\t");
         int in = Integer.parseInt(bufferedReader.readLine());
         String message;
         switch (in) {
-            case 1:
-                System.out.println("Register Name");
+            case 1://REGISTER
+                System.out.println("Register Name:");
                 name = bufferedReader.readLine();
                 int tcp = 3333;
                 message = "REGISTER|" + (++RQ) + "|" + name + "|" + 3333;
                 return message;
-            case 2:
-                System.out.println("Deregister Name");
+                
+            case 2://DEREGISTER
+                System.out.println("Deregister Name:");
                 String derregistername = bufferedReader.readLine();
                 message = "DE-REGISTER|" + (++RQ) + "|" + derregistername;
                 return message;
-            case 3:
-                // System.out.println("Enter files to publish seperated by space");
-                // String filenames = bufferedReader.readLine();
-                String ListofFiles = "";
-                File folder = new File("./Files");
+                
+            case 3://PUBLISH
+                File folder = new File("./Files/");
                 File[] files = folder.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        ListofFiles +=file.getName()+" ";
+                String [] listofFiles;
+                String input;
+                if (files != null){
+                     System.out.println("Publish file Names:");
+                     input = bufferedReader.readLine();
+                     listofFiles = input.split(",");
+                     for (File file : files){
+                        for (String fileString : listofFiles)
+                        {
+                            if (fileString == file.getName() && file!=null)
+                            {
+                                 sendingFile += fileString + " ";
+                                
+                            }
+                            else{
+                                String error = "Error";
+                                System.out.println(error);
+                                break;
+                            }
+
+                        }
                     }
+                    System.out.println("Sent from the server: " );
+                    
+                    message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile;
+                    return message;
+                    }
+                else{
+                    System.out.println("There are no files in ./Files/ directory");
                 }
-                message = "PUBLISH|" + (++RQ) + "|" + name + "|" + ListofFiles;
-                return message;
+    
+            
+             
+            case 4://REMOVE
+                
+
+                //message = "REMOVE | " + (++RQ) + "|" + name + "|" + ListofFilesRemoved;
+            
+            case 5://RETRIEVE
 
 
+
+            case 6://RETRIEVE specific
+
+            case 7://SEARCH specific
+
+            case 8://DOWNLOAD a file
+
+            case 9://UPDATE use contact info
+
+            
+            default:
+                break;
         }
-
-        return "IVALID INPUT";
+        return "INVALID INPUT";
     }
 
 
