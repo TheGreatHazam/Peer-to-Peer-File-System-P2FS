@@ -25,6 +25,8 @@ public class Server {
                 return deregisterClient(clientInfo);
             case "PUBLISH":
                 return publishClient(clientInfo);
+            case "REMOVE":
+                return removeClient(clientInfo);
             case "IVALID INPUT":
                 return "IVALID INPUT";
             default:break;
@@ -32,6 +34,33 @@ public class Server {
         return "ERROR OCCURED";
 
     }
+
+    private String removeClient(String[] clientInfo) {
+        String [] listofFiles = clientInfo[3].split(" ");
+
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            for(int j =0;j< temp.getFileList().size() ;j++){
+                if()
+            }
+        } 
+
+
+        return
+    }
+    //         if (temp.getFileList(clientInfo[2])) {
+    //             clients.get(i).setFileList(files);
+    //             clientnameMatch=true;
+    //             String message = "Remove" + " | " + Integer.parseInt(clientInfo[1]);
+    //             return message;
+    //         }
+    //     }
+    //     if(!clientnameMatch){
+    //         String message = "REMOVE-DENIED" + " |  | " + "NAME DOES NOT EXIST";
+    //     }
+
+    //     return "ERROR REMOVING";
+    // }
 
     private String publishClient(String[] clientInfo) {
         String []filenames =clientInfo[3].split(" ");

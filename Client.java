@@ -16,7 +16,8 @@ public class Client {
     private InetAddress inetAddress;
     private static int RQ = 0;
     private String name;
-    private String sendingFile;
+    private String sendingFile = "";
+    
 
     public Client(DatagramSocket datagramSocket, InetAddress inetAddress) {
         this.datagramSocket = datagramSocket;
@@ -71,27 +72,29 @@ public class Client {
                 File folder = new File("./Files/");
                 File[] files = folder.listFiles();
                 String [] listofFiles;
-                String input;
+                String inputPublish;
                 if (files != null){
                      System.out.println("Publish file Names:");
-                     input = bufferedReader.readLine();
-                     listofFiles = input.split(",");
-                     for (File file : files){
-                        for (String fileString : listofFiles)
-                        {
-                            if (fileString == file.getName() && file!=null)
+                     inputPublish = bufferedReader.readLine();
+                     listofFiles = inputPublish.split(",");
+                   
+                        for(int i = 0; i < listofFiles.length; i++){
+                            for(File file : files )
                             {
-                                 sendingFile += fileString + " ";
-                                
+                                if(file.getName().contains( listofFiles[i])){
+                                  
+                                    sendingFile += listofFiles[i] + " ";
+                                }
                             }
-                            else{
-                                String error = "Error";
-                                System.out.println(error);
-                                break;
-                            }
-
                         }
-                    }
+
+                        if (sendingFile == ""){
+                            String error = "File does not exist, please try again";
+                            System.out.println(error);
+                            return "error";
+                        }
+                   
+                  
                     System.out.println("Sent from the server: " );
                     
                     message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile;
@@ -104,13 +107,20 @@ public class Client {
             
              
             case 4://REMOVE
-                
 
-                //message = "REMOVE | " + (++RQ) + "|" + name + "|" + ListofFilesRemoved;
-            
+                String [] listofFilesRemoved;
+                String inputRemove;
+                System.out.println("Remove file Names:");
+                inputRemove = bufferedReader.readLine();
+                listofFilesRemoved = inputRemove.split(",");
+        
+                sendingFile += listofFilesRemoved + " ";
+                System.out.println("Sent from the server: " );
+                    
+                message = "REMOVE | " + (++RQ) + "|" + name + "|" + listofFilesRemoved;
+                return message;
+
             case 5://RETRIEVE
-
-
 
             case 6://RETRIEVE specific
 
