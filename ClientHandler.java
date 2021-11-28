@@ -1,21 +1,28 @@
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 public class ClientHandler {
-    private static int  counter = 1;
     private int RQId;
     private int UDPPort;
     private int TCPPort;
     private InetAddress address;
-    private String Name;
+    private  String name;
+    private ArrayList<String> fileList;
 
-    public ClientHandler(int UDPPort, int TCPPort, InetAddress address, String name) {
-        //Increment RQID per creating of client.
-        this.RQId = counter;
+    public ClientHandler(int RQId, int UDPPort, int TCPPort, InetAddress address, String name) {
+        this.RQId = RQId;
         this.UDPPort = UDPPort;
         this.TCPPort = TCPPort;
         this.address = address;
-        this.Name = name;
-        counter++;
+        this.name = name;
+    }
+
+    public int getRQId() {
+        return RQId;
+    }
+
+    public void setRQId(int RQId) {
+        this.RQId = RQId;
     }
 
     public int getUDPPort() {
@@ -43,23 +50,30 @@ public class ClientHandler {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        name = name;
+        this.name = name;
     }
 
-    public int getRQID(){ return RQId;}
+    public ArrayList<String> getFileList() {
+        return fileList;
+    }
+
+    public void setFileList(ArrayList<String> fileList) {
+        this.fileList = fileList;
+    }
 
     @Override
     public String toString() {
         return "ClientHandler{" +
-                "UDPPort=" + UDPPort +
+                "RQId=" + RQId +
+                ", UDPPort=" + UDPPort +
                 ", TCPPort=" + TCPPort +
                 ", address=" + address +
-                ", Name='" + Name + '\'' +
-                ", RQID ='"+RQId +
-                '}';
+                ", name='" + name + '\'' +
+                ", fileList=" + fileList +
+                "\n";
     }
 }
