@@ -16,7 +16,7 @@ public class Client {
     private InetAddress inetAddress;
     private static int RQ = 0;
     private String name;
-    private String sendingFile = "";
+
     
 
     public Client(DatagramSocket datagramSocket, InetAddress inetAddress) {
@@ -59,13 +59,13 @@ public class Client {
                 System.out.println("Register Name:");
                 name = bufferedReader.readLine();
                 int tcp = 3333;
-                message = "REGISTER|" + (++RQ) + "|" + name + "|" + 3333;
+                message = "REGISTER|" + (++RQ) + "|" + name + "|" + 3333+"|";
                 return message;
                 
             case 2://DEREGISTER
                 System.out.println("Deregister Name:");
                 String derregistername = bufferedReader.readLine();
-                message = "DE-REGISTER|" + (++RQ) + "|" + derregistername;
+                message = "DE-REGISTER|" + (++RQ) + "|" + derregistername+"|";
                 return message;
                 
             case 3://PUBLISH
@@ -73,6 +73,7 @@ public class Client {
                 File[] files = folder.listFiles();
                 String [] listofFiles;
                 String inputPublish;
+                String sendingFile = "";
                 if (files != null){
                      System.out.println("Publish file Names:");
                      inputPublish = bufferedReader.readLine();
@@ -81,7 +82,7 @@ public class Client {
                         for(int i = 0; i < listofFiles.length; i++){
                             for(File file : files )
                             {
-                                if(file.getName().contains( listofFiles[i])){
+                                if(file.getName().equals( listofFiles[i])){
                                   
                                     sendingFile += listofFiles[i] + " ";
                                 }
@@ -97,7 +98,7 @@ public class Client {
                   
                     System.out.println("Sent from the server: " );
                     
-                    message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile;
+                    message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile+"|";
                     return message;
                     }
                 else{
@@ -112,28 +113,31 @@ public class Client {
                 String inputRemove;
                 System.out.println("Remove file Names:");
                 inputRemove = bufferedReader.readLine();
+                String sendingFileRemoved = "";
                 listofFilesRemoved = inputRemove.split(",");
-        
-                sendingFile += listofFilesRemoved + " ";
-                System.out.println("Sent from the server: " );
-                    
-                message = "REMOVE | " + (++RQ) + "|" + name + "|" + listofFilesRemoved;
+                for (int i=0;i<listofFilesRemoved.length;i++){
+                    sendingFileRemoved += listofFilesRemoved[i] + " ";
+                }
+                message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved+"|";
                 return message;
 
             case 5://RETRIEVE-ALL
-                message = "RETRIEVE-ALL|" + (++RQ) ;
+                message = "RETRIEVE-ALL|" + (++RQ)+"|" ;
                 return message;
 
             case 6://RETRIEVE specific
                 System.out.println("client name to search by");
                 String tempName= bufferedReader.readLine();
-                message = "RETRIEVE-INFOT|"+(++RQ)+"|"+tempName;
+                if (tempName==null){
+                    tempName=" ";
+                }
+                message = "RETRIEVE-INFOT|"+(++RQ)+"|"+tempName+"|";
                 return message;
 
             case 7://SEARCH specific
                 System.out.println("search by file name");
                 String filename= bufferedReader.readLine();
-                message = "SEARCH-FILE|"+(++RQ)+"|"+filename;
+                message = "SEARCH-FILE|"+(++RQ)+"|"+filename+"|";
                 return message;
 
             case 8://DOWNLOAD a file
@@ -149,7 +153,6 @@ public class Client {
                 message = "UPDATE-CONTACT|"+(++RQ)+"|"+name+"|"+inet+"|"+udpPort+"|"+tcpPort;
                 return message;
 
-            
             default:
                 break;
         }

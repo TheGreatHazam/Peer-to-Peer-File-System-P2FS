@@ -15,6 +15,7 @@ public class Server {
     //each packet on a datagram packet is adreesssed and routed
     public String response(String messageFromClient, DatagramPacket receivePacket) throws UnknownHostException {
         String[]clientInfo= messageFromClient.split("\\|");
+//        incrementRQ(clientInfo);
         switch (clientInfo[0]){
             case "REGISTER":
                 return registerClient(clientInfo,receivePacket);
@@ -39,6 +40,15 @@ public class Server {
         return "ERROR OCCURED";
 
     }
+
+//    private void incrementRQ(String[] clientInfo) {
+//        for (int i = 0; i < clients.size(); i++) {
+//            ClientHandler temp = (ClientHandler) clients.get(i);
+//            if (temp.getName().equals(clientInfo[2])) {
+//                clients.get(i).setRQId(Integer.parseInt(clientInfo[1]));
+//            }
+//        }
+//    }
 
     private String updateClient(String[] clientInfo) throws UnknownHostException {
         for (int i = 0; i < clients.size(); i++) {
@@ -78,7 +88,7 @@ public class Server {
         }
 
 
-        return"RETRIEVE-ERROr"+clientInfo[1]+"Client not found";
+        return"RETRIEVE-ERROR|"+clientInfo[1]+"|Client not found";
     }
 
     private String retrieveAllClient(String[] clientInfo) {
@@ -88,15 +98,25 @@ public class Server {
     private String removeClient(String[] clientInfo) {
         String [] listofFiles = clientInfo[3].split(" ");
 
+System.out.println(Arrays.toString(listofFiles));
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
-            for(int j =0;j< temp.getFileList().size() ;j++){
+            if (temp.getName().equals(clientInfo[2])) {
+                for (int j=0;j< listofFiles.length;j++)
+                {
+                    System.out.println(listofFiles[j]);
+                    System.out.println(clients.get(i).getFileList());
 
+
+                    if (clients.get(i).getFileList().contains(listofFiles[j])){
+                        clients.get(i).getFileList().remove(listofFiles[j]);
+                    }
+                }
             }
-        } 
+        }
 
 
-        return "test";
+        return "REMOVED|"+clientInfo[1];
     }
     //         if (temp.getFileList(clientInfo[2])) {
     //             clients.get(i).setFileList(files);
