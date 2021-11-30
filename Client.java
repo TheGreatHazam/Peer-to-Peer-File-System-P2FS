@@ -51,7 +51,7 @@ public class Client {
 
     private String input() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Enter \n\t1 to register \n\t2 to deregister\n\t3 to publish\n\t4 to remove\n\t5 to retrieve\n\t6 to retrieve specific\n\t7 to search for specific file\n\t8 to download a file\n\t9 to update your contact info\n\t");
+        System.out.println("Enter \n\t1 to register \n\t2 to deregister\n\t3 to publish\n\t4 to remove\n\t5 to retrieve-all\n\t6 to retrieve by name\n\t7 to search for specific file\n\t8 to download a file\n\t9 to update your contact info\n\t");
         int in = Integer.parseInt(bufferedReader.readLine());
         String message;
         switch (in) {
@@ -120,11 +120,21 @@ public class Client {
                 message = "REMOVE | " + (++RQ) + "|" + name + "|" + listofFilesRemoved;
                 return message;
 
-            case 5://RETRIEVE
+            case 5://RETRIEVE-ALL
+                message = "RETRIEVE-ALL|" + (++RQ) ;
+                return message;
 
             case 6://RETRIEVE specific
+                System.out.println("client name to search by");
+                String tempName= bufferedReader.readLine();
+                message = "RETRIEVE-INFOT|"+(++RQ)+"|"+tempName;
+                return message;
 
             case 7://SEARCH specific
+                System.out.println("search by file name");
+                String filename= bufferedReader.readLine();
+                message = "SEARCH-FILE|"+(++RQ)+"|"+filename;
+                return message;
 
             case 8://DOWNLOAD a file
 

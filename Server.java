@@ -27,6 +27,12 @@ public class Server {
                 return publishClient(clientInfo);
             case "REMOVE":
                 return removeClient(clientInfo);
+            case "RETRIEVE-ALL":
+                return retrieveAllClient(clientInfo);
+            case "RETRIEVE-INFOT":
+                return retrieveClientbyName(clientInfo);
+            case "SEARCH-FILE":
+                return searchfilebyName(clientInfo);
             case "IVALID INPUT":
                 return "IVALID INPUT";
             default:break;
@@ -35,18 +41,49 @@ public class Server {
 
     }
 
+    private String searchfilebyName(String[] clientInfo) {
+        ArrayList<ClientHandler> clientwithFile = new ArrayList<ClientHandler>();
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            if (temp.getFileList()!=null){
+            for (int j=0;j<temp.getFileList().size();j++){
+                if (temp.getFileList().get(j).equals(clientInfo[2])){
+                    clientwithFile.add(temp);
+                }
+            }}
+        }
+        if (clientwithFile.size()==0){return"SEARCH-ERROR|"+clientInfo[1]+"|file is not found";}
+        else {return"SEARCH-FILE|"+clientInfo[1]+clientwithFile.toString(); }
+    }
+
+    private String retrieveClientbyName(String[] clientInfo) {
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            if (temp.getName().equals(clientInfo[2])) {
+                return"RETRIEVE"+clientInfo[1]+ clients.get(i).toString();
+            }
+        }
+
+
+        return"RETRIEVE-ERROr"+clientInfo[1]+"Client not found";
+    }
+
+    private String retrieveAllClient(String[] clientInfo) {
+        return"RETRIEVE"+clientInfo[1]+ clients.toString();
+    }
+
     private String removeClient(String[] clientInfo) {
         String [] listofFiles = clientInfo[3].split(" ");
 
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             for(int j =0;j< temp.getFileList().size() ;j++){
-                if()
+
             }
         } 
 
 
-        return
+        return "test";
     }
     //         if (temp.getFileList(clientInfo[2])) {
     //             clients.get(i).setFileList(files);
