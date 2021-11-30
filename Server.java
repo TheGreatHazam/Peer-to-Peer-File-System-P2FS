@@ -1,9 +1,6 @@
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -16,7 +13,7 @@ public class Server {
         this.datagramSocket = datagramSocket;
     }
     //each packet on a datagram packet is adreesssed and routed
-    public String response(String messageFromClient, DatagramPacket receivePacket){
+    public String response(String messageFromClient, DatagramPacket receivePacket) throws UnknownHostException {
         String[]clientInfo= messageFromClient.split("\\|");
         switch (clientInfo[0]){
             case "REGISTER":
@@ -33,12 +30,28 @@ public class Server {
                 return retrieveClientbyName(clientInfo);
             case "SEARCH-FILE":
                 return searchfilebyName(clientInfo);
+            case "UPDATE-CONTACT":
+                return updateClient(clientInfo);
             case "IVALID INPUT":
                 return "IVALID INPUT";
             default:break;
         }
         return "ERROR OCCURED";
 
+    }
+
+    private String updateClient(String[] clientInfo) throws UnknownHostException {
+        for (int i = 0; i < clients.size(); i++) {
+            ClientHandler temp = (ClientHandler) clients.get(i);
+            if (temp.getName().equals(clientInfo[2])) {
+                clients.get(i).setAddress(InetAddress.getByName(clientInfo[3].substring(1)));
+                clients.get(i).setUDPPort(Integer.parseInt(clientInfo[4]));
+                clients.get(i).setTCPPort(Integer.parseInt(clientInfo[5]));
+                return"UPDATE-CONFIRMED"+clientInfo[1]+ clients.get(i).toString();
+
+            }
+        }
+        return"UPDATE-DENIED"+clientInfo[1]+clientInfo[2] +" name not found";
     }
 
     private String searchfilebyName(String[] clientInfo) {

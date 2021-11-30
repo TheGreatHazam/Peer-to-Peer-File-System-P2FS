@@ -139,6 +139,15 @@ public class Client {
             case 8://DOWNLOAD a file
 
             case 9://UPDATE use contact info
+                //add yes and no
+                System.out.println("update TCP port");
+                int tcpPort=Integer.parseInt(bufferedReader.readLine());
+                System.out.println("update UDP port");
+                int udpPort=Integer.parseInt(bufferedReader.readLine());
+                System.out.println("update internet address");
+                InetAddress inet= InetAddress.getByName(bufferedReader.readLine());
+                message = "UPDATE-CONTACT|"+(++RQ)+"|"+name+"|"+inet+"|"+udpPort+"|"+tcpPort;
+                return message;
 
             
             default:
