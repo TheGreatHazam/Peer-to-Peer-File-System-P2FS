@@ -1,7 +1,8 @@
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class ClientHandler {
+public class ClientHandler implements Serializable {
     private int RQId;
     private int UDPPort;
     private int TCPPort;

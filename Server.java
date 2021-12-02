@@ -1,5 +1,5 @@
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,17 +27,17 @@ public class Server {
                 return removeClient(clientInfo);
             case "RETRIEVE-ALL":
                 return retrieveAllClient(clientInfo);
-            case "RETRIEVE-INFOT":
+            case "RETRIEVE-INFO":
                 return retrieveClientbyName(clientInfo);
             case "SEARCH-FILE":
                 return searchfilebyName(clientInfo);
             case "UPDATE-CONTACT":
                 return updateClient(clientInfo);
-            case "IVALID INPUT":
-                return "IVALID INPUT";
+            case "INVALID INPUT":
+                return "INVALID INPUT";
             default:break;
         }
-        return "ERROR OCCURED";
+        return "ERROR OCCURRED";
 
     }
 
@@ -196,7 +196,7 @@ System.out.println(Arrays.toString(listofFiles));
     public void receiveThenSend(){
         while (true){
             byte[] receiveBuffer = new byte[1024];
-            byte[]  sendBuffer = new byte[1024];
+            byte[]  sendBuffer;
             try {
 
                 DatagramPacket receivePacket=new DatagramPacket(receiveBuffer,receiveBuffer.length);
@@ -210,8 +210,7 @@ System.out.println(Arrays.toString(listofFiles));
                 sendBuffer=messageToClient.getBytes();
                 DatagramPacket sendPacket=new DatagramPacket(sendBuffer, sendBuffer.length,inetAddress,port);
                 datagramSocket.send(sendPacket);
-
-                System.out.println(clients.toString());
+                logClientInfo();
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
@@ -220,11 +219,43 @@ System.out.println(Arrays.toString(listofFiles));
         }
     }
 
-    public static void main(String[] args) throws SocketException {
+    public static void logClientInfo(){
+        try{
+            FileOutputStream writeData = new FileOutputStream("logClientInfo.ser");
+            ObjectOutputStream writeStream = new ObjectOutputStream((writeData));
+
+            writeStream.writeObject(clients);
+            writeStream.flush();
+            writeStream.close();
+            System.out.println(clients.toString());
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void fetchClientInfo(){
+        try{
+
+            FileInputStream readData = new FileInputStream("logClientInfo.ser");
+            ObjectInputStream readStream = new ObjectInputStream(readData);
+
+            clients = (ArrayList<ClientHandler>) readStream.readObject();
+            readStream.close();
+            System.out.println(clients.toString());
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void main(String[] args) throws IOException {
 
         // Instantiate a new DatagramSocket to receive responses from the client
         DatagramSocket datagramSocket = new DatagramSocket(SERVICE_PORT);
         Server server = new Server(datagramSocket);
+        fetchClientInfo();
         server.receiveThenSend();
 
     }
