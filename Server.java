@@ -237,17 +237,18 @@ System.out.println(Arrays.toString(listofFiles));
 
     public static void fetchClientInfo(){
         try{
-
             FileInputStream readData = new FileInputStream("logClientInfo.ser");
             ObjectInputStream readStream = new ObjectInputStream(readData);
 
             clients = (ArrayList<ClientHandler>) readStream.readObject();
             readStream.close();
             System.out.println(clients.toString());
-        }catch (Exception e) {
+        } catch (EOFException e) {
+        } catch(IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
     public static void main(String[] args) throws IOException {
