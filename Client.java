@@ -21,7 +21,7 @@ public class Client {
     private InetAddress inetAddress;
     private static int RQ = 0;
     private static String name;
-    int tcp;
+    private static int tcp;
     static Boolean register = false;
 
 
@@ -270,12 +270,12 @@ public class Client {
                     String sendingFileRemoved = "";
                     listofFilesRemoved = inputRemove.split(",");
                     for (int i = 0; i < listofFilesRemoved.length; i++) {
-                        sendingFileRemoved += listofFilesRemoved[i] + " ";
-                    }
-                    for (int i = 0; i < listofFilesRemoved.length; i++) {
                         if (!sendingFileRemoved.contains(listofFilesRemoved[i])) {
-                            sendingFileRemoved = "";
+                            sendingFileRemoved="";
+                            message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved + "|";
+                            return message;
                         }
+                        sendingFileRemoved+=listofFilesRemoved[i];
                     }
                     message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved + "|";
                     return message;

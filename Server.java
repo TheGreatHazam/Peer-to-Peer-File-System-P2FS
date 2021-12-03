@@ -43,14 +43,6 @@ public class Server {
 
     }
 
-//    private void incrementRQ(String[] clientInfo) {
-//        for (int i = 0; i < clients.size(); i++) {
-//            ClientHandler temp = (ClientHandler) clients.get(i);
-//            if (temp.getName().equals(clientInfo[2])) {
-//                clients.get(i).setRQId(Integer.parseInt(clientInfo[1]));
-//            }
-//        }
-//    }
 
     private String updateClient(String[] clientInfo, DatagramPacket receivePacket) throws UnknownHostException {
         for (int i = 0; i < clients.size(); i++) {
