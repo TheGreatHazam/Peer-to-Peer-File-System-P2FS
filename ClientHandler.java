@@ -63,7 +63,7 @@ public class ClientHandler implements Serializable {
     }
 
     public void setFileList(ArrayList<String> fileList) {
-        this.fileList = fileList;
+        this.fileList.addAll(fileList);
     }
 
     @Override
