@@ -63,6 +63,9 @@ public class ClientHandler implements Serializable {
     }
 
     public void setFileList(ArrayList<String> fileList) {
+        if(this.fileList==null){
+            this.fileList=fileList;
+        }
         this.fileList.addAll(fileList);
     }
 
