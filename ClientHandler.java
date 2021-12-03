@@ -7,8 +7,8 @@ public class ClientHandler implements Serializable {
     private int UDPPort;
     private int TCPPort;
     private InetAddress address;
-    private  String name;
-    private ArrayList<String> fileList;
+    private String name;
+    private ArrayList<String> fileList = new ArrayList<String>();
 
     public ClientHandler(int RQId, int UDPPort, int TCPPort, InetAddress address, String name) {
         this.RQId = RQId;
@@ -63,10 +63,10 @@ public class ClientHandler implements Serializable {
     }
 
     public void setFileList(ArrayList<String> fileList) {
-        if(this.fileList==null){
-            this.fileList=fileList;
+        fileList.removeAll(this.fileList);
+        for (int i = 0; i < fileList.size(); i++) {
+            this.fileList.add(fileList.get(i));
         }
-        this.fileList.addAll(fileList);
     }
 
     @Override
