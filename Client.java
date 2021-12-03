@@ -16,18 +16,21 @@ import Files.javafiledemo;
 
 public class Client {
     private static final int PORT_NUMBER = 1234;
-    private static  String SERVER_IP = "localhost";//local host
+    private static final String SERVER_IP = "localhost";//local host
     private DatagramSocket datagramSocket;
     private InetAddress inetAddress;
     private static int RQ = 0;
     private static String name;
-    private static int tcp;
+    private TCPClient tcpClient;
     static Boolean register = false;
 
 
     public Client(DatagramSocket datagramSocket, InetAddress inetAddress) {
         this.datagramSocket = datagramSocket;
-        this.inetAddress = inetAddress;
+        this.inetAddress = inetAddress
+        serverSocketTCP = new ServerSocket(3333);
+        TCPClient tcpClient = new TCPClient();
+        Thread clientThread = new Thread
     }
 
     public void sendThenReceive() {
@@ -58,18 +61,7 @@ public class Client {
 
     private void serverfeeback(String messageFromServer) {
         String[] feedback = messageFromServer.split("\\|");
-        if(feedback.length>=2){
-//            System.out.println(feedback[1]+"|"+RQ);
-            if (Integer.parseInt(feedback[1])!=RQ){
-                System.out.println(feedback[1]+RQ);
-                        System.out.println("RQ does not match");
-                        return;
-            }
-        }
-        String message;
-        byte[] Buffer = new byte[1024];
-        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(System.in));
-
+//        incrementRQ(clientInfo);
         switch (feedback[0]) {
             case "REGISTERED":
                 register = true;
@@ -81,97 +73,9 @@ public class Client {
 
             case "PUBLISH-DENIED":
                 //publish again
-
-                try {
-                    if (register) {
-                        File folder = new File("./Files/");
-                        File[] files = folder.listFiles();
-                        String[] listofFiles;
-                        String inputPublish;
-                        String sendingFile = "";
-                        if (files != null) {
-                            System.out.println("Publish file Names:");
-                            inputPublish = bufferedReader.readLine();
-                            listofFiles = inputPublish.split(",");
-
-                            for (int i = 0; i < listofFiles.length; i++) {
-                                for (File file : files) {
-                                    if (file.getName().equals(listofFiles[i])) {
-
-                                        sendingFile += listofFiles[i] + " ";
-                                    }
-
-                                }
-                            }
-                            for (int i = 0; i < listofFiles.length; i++) {
-                                if (!sendingFile.contains(listofFiles[i])) {
-                                    sendingFile = "";
-                                }
-                            }
-
-                            message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile + "|";
-
-                        } else {
-                            System.out.println("There are no files in ./Files/ directory");
-                            message= "IGNORE";
-                        }
-                    } else {
-                        System.out.println("Not registered");
-                        message= "IGNORE";
-                    }
-
-
-                    Buffer = message.getBytes();
-                    DatagramPacket sendPacket = new DatagramPacket(Buffer, Buffer.length, inetAddress, PORT_NUMBER);
-                    datagramSocket.send(sendPacket);
-
-                    DatagramPacket receivePacket = new DatagramPacket(Buffer, Buffer.length);
-                    datagramSocket.receive(receivePacket);
-                    messageFromServer = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println("server:" + messageFromServer);
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    break;}
                 break;
 
             case "REMOVE-DENIED":
-                try {
-                    if (register) {
-                    String[] listofFilesRemoved;
-                    String inputRemove;
-                    System.out.println("Remove file Names:");
-                    inputRemove = bufferedReader.readLine();
-                    String sendingFileRemoved = "";
-                    listofFilesRemoved = inputRemove.split(",");
-                    for (int i = 0; i < listofFilesRemoved.length; i++) {
-                        sendingFileRemoved += listofFilesRemoved[i] + " ";
-                    }
-                    for (int i = 0; i < listofFilesRemoved.length; i++) {
-                        if (!sendingFileRemoved.contains(listofFilesRemoved[i])) {
-                            sendingFileRemoved = "";
-                        }
-                    }
-                    message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved + "|";
-                } else {
-                    System.out.println("Not registered");
-                    message= "IGNORE";
-                }
-
-
-                    Buffer = message.getBytes();
-                    DatagramPacket sendPacket = new DatagramPacket(Buffer, Buffer.length, inetAddress, PORT_NUMBER);
-                    datagramSocket.send(sendPacket);
-                    DatagramPacket receivePacket = new DatagramPacket(Buffer, Buffer.length);
-                    datagramSocket.receive(receivePacket);
-                     messageFromServer = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println("server:" + messageFromServer);
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    break;}
                 //remove again
                 break;
 
@@ -181,7 +85,7 @@ public class Client {
             default:
                 break;
         }
- return;
+
     }
 
     private String input() throws IOException {
@@ -204,7 +108,6 @@ public class Client {
                     scan.next();
                 }
                 tcp = scan.nextInt();
-                register =false;
                 return "IGNORE";
             case "1"://REGISTER
                 if (name.isEmpty()) {
@@ -216,7 +119,7 @@ public class Client {
                 return message;
 
             case "2"://DEREGISTER
-
+                System.out.println(register);
                 if (register) {
                     message = "DE-REGISTER|" + (++RQ) + "|" + name + "|";
                     return message;
@@ -270,12 +173,12 @@ public class Client {
                     String sendingFileRemoved = "";
                     listofFilesRemoved = inputRemove.split(",");
                     for (int i = 0; i < listofFilesRemoved.length; i++) {
+                        sendingFileRemoved += listofFilesRemoved[i] + " ";
+                    }
+                    for (int i = 0; i < listofFilesRemoved.length; i++) {
                         if (!sendingFileRemoved.contains(listofFilesRemoved[i])) {
-                            sendingFileRemoved="";
-                            message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved + "|";
-                            return message;
+                            sendingFileRemoved = "";
                         }
-                        sendingFileRemoved+=listofFilesRemoved[i];
                     }
                     message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved + "|";
                     return message;
@@ -319,41 +222,20 @@ public class Client {
                 }
 
             case "8"://DOWNLOAD a file
-//                System.out.println("Enter the name of the file you wish to download:");
-//
-//                String fileNameDownload = bufferedReader.readLine();
-//
-//                message = "DOWNLOAD|"+(++RQ)+"|"+fileNameDownload+"|";
-//                Path fileNamePath = Path.of(fileNameDownload);
-//                String content = Files.readString(fileNamePath);
-//
-//                if(content == null){
-//                    return message = "DOWNLOAD-ERROR|"+(++RQ)+"|content does not exist";
-//                }
-//
-//                List<String> chunks = new ArrayList<String>();
-//
-//                while(chunks.size()*200 < content.length()){
-//                    if(chunks.size()*200+200 > content.length()){
-//                        chunks.add(new String(content.substring(chunks.size()*200,content.length())));
-//                    }else{
-//                        chunks.add(new String(content.substring(chunks.size()*200, chunks.size()*200+200)));
-//                    }
-//                }
-//
-//                for(int i = 0; i< chunks.size(); i++){
-//                    Integer chunkNumber = i;
-//
-//                    //last chunk validation
-//                    if(i == chunks.size()-1){
-//                         return message = "FILE-END|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
-//                    }else{
-//                        return message = "FILE|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
-//                    }
-//                }
-//
-//                System.out.println(content);
-//                // return message;
+                BufferedReader bufferReader = new BufferedReader(new InputStreamReader(System.in)); 
+                System.out.println("Enter server IP: ");
+                String filename =bufferReader.readLine();
+
+                System.out.println("Enter portNumer: ");
+                String serverip =bufferReader.readLine();
+
+                System.out.println("Enter filename: ");
+                int portnumber = bufferReader.readLine();                
+            
+                retrieveFile(serverip,portnumber,filename);
+
+                return "IGNORE";
+             
             case "9"://UPDATE use contact info
                 //add yes and no
                 message = "UPDATE-CONTACT|" + (++RQ) + "|" + name + "|" + tcp;
@@ -366,16 +248,34 @@ public class Client {
         return "INVALID INPUT";
     }
 
+    void retrieveFile(int serverip,int portnumber, String filename){
+        InetAddress inetAddress = InetAddress.getByName(serverip);
+        Socket socket= new Socket(inetAddress,portnumber);
+
+        ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream());
+
+        objectOutput.writeObject(filename);
+        
+
+        while()
+
+
+
+    }
+
 
     public static void main(String[] args) throws IOException {
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("enter ip of server");
-        SERVER_IP=bf.readLine();
+        tcpClient.listen();
+        Thread tcpClientThread = new Thread(tcpClient);
+        tcpClientThread.start();
+
         DatagramSocket datagramSocket = new DatagramSocket();
         // Get the IP address of the server
         InetAddress inetAddress = InetAddress.getByName(SERVER_IP);
         Client client = new Client(datagramSocket, inetAddress);
         System.out.println("Enter the client name:");
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         name = bf.readLine();
         while (name.isEmpty()) {
             System.out.println("Re-enter client name:");
@@ -386,7 +286,6 @@ public class Client {
         while (!scan.hasNextInt()) {
             scan.next();
         }
-         tcp= scan.nextInt();
         client.sendThenReceive();
     }
 }
