@@ -27,12 +27,14 @@ public class Server {
                 return removeClient(clientInfo);
             case "RETRIEVE-ALL":
                 return retrieveAllClient(clientInfo);
-            case "RETRIEVE-INFO":
+            case "RETRIEVE-INFOT":
                 return retrieveClientbyName(clientInfo);
             case "SEARCH-FILE":
                 return searchfilebyName(clientInfo);
             case "UPDATE-CONTACT":
-                return updateClient(clientInfo);
+                return updateClient(clientInfo,receivePacket);
+            case "IGNORE":
+                return "";
             case "INVALID INPUT":
                 return "INVALID INPUT";
             default:break;
@@ -50,18 +52,18 @@ public class Server {
 //        }
 //    }
 
-    private String updateClient(String[] clientInfo) throws UnknownHostException {
+    private String updateClient(String[] clientInfo, DatagramPacket receivePacket) throws UnknownHostException {
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(clientInfo[2])) {
-                clients.get(i).setAddress(InetAddress.getByName(clientInfo[3].substring(1)));
-                clients.get(i).setUDPPort(Integer.parseInt(clientInfo[4]));
-                clients.get(i).setTCPPort(Integer.parseInt(clientInfo[5]));
-                return"UPDATE-CONFIRMED"+clientInfo[1]+ clients.get(i).toString();
+                clients.get(i).setAddress(receivePacket.getAddress());
+                clients.get(i).setUDPPort(receivePacket.getPort());
+                clients.get(i).setTCPPort(Integer.parseInt(clientInfo[3]));
+                return"UPDATE-CONFIRMED|"+clientInfo[1]+"|"+ clients.get(i).toString();
 
             }
         }
-        return"UPDATE-DENIED"+clientInfo[1]+clientInfo[2] +" name not found";
+        return"UPDATE-DENIED|"+clientInfo[1]+clientInfo[2] +"| name not found";
     }
 
     private String searchfilebyName(String[] clientInfo) {
@@ -83,7 +85,7 @@ public class Server {
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(clientInfo[2])) {
-                return"RETRIEVE"+clientInfo[1]+ clients.get(i).toString();
+                return"RETRIEVE|"+clientInfo[1]+"|"+ clients.get(i).toString();
             }
         }
 
@@ -92,10 +94,14 @@ public class Server {
     }
 
     private String retrieveAllClient(String[] clientInfo) {
-        return"RETRIEVE"+clientInfo[1]+ clients.toString();
+        return"RETRIEVE|"+clientInfo[1]+"|"+ clients.toString();
     }
 
     private String removeClient(String[] clientInfo) {
+        if (clientInfo.length<4){
+            String message = "REMOVE-DENIED" + " |"+clientInfo[1]+" | " + "files or name ";
+            return message;
+        }
         String [] listofFiles = clientInfo[3].split(" ");
 
 System.out.println(Arrays.toString(listofFiles));
@@ -133,6 +139,10 @@ System.out.println(Arrays.toString(listofFiles));
     // }
 
     private String publishClient(String[] clientInfo) {
+        if (clientInfo.length<4){
+            String message = "PUBLISH-DENIED" + " |"+clientInfo[1]+" | " + "files or name ";
+            return message;
+        }
         String []filenames =clientInfo[3].split(" ");
         ArrayList<String> files=new ArrayList<>(Arrays.asList(filenames));
         boolean clientnameMatch=false;
@@ -146,7 +156,8 @@ System.out.println(Arrays.toString(listofFiles));
             }
         }
         if(!clientnameMatch){
-            String message = "PUBLISH-DENIED" + " |  | " + "NAME DOES NOT EXIST";
+            String message = "PUBLISH-DENIED" + " |"+clientInfo[1]+" | " + "Client Does not exist";
+            return message;
         }
 
         return "ERROR PUBLISHING";
@@ -177,7 +188,7 @@ System.out.println(Arrays.toString(listofFiles));
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(clientInfo[2])) {
                 register = false;
-                String message = "REGISTER-DENIED" + " | "+clientInfo[1] + " | " + "USERNAME TAKEN";
+                String message = "REGISTER-DENIED" + " | "+clientInfo[1] + " | " + "USERNAME TAKEN OR ALREADY REGISTERED";
                 return message;
 
             }

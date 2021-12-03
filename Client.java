@@ -21,7 +21,9 @@ public class Client {
     private DatagramSocket datagramSocket;
     private InetAddress inetAddress;
     private static int RQ = 0;
-    private String name;
+    private static  String name;
+    int tcp;
+    static Boolean register=false;
 
     
 
@@ -57,24 +59,41 @@ public class Client {
 
     private String input() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Enter \n\t1 to register \n\t2 to deregister\n\t3 to publish\n\t4 to remove\n\t5 to retrieve-all\n\t6 to retrieve by name\n\t7 to search for specific file\n\t8 to download a file\n\t9 to update your contact info\n\t");
-        int in = Integer.parseInt(bufferedReader.readLine());
+        System.out.println("Enter \n\t0 setup client Information\n\t1 to register \n\t2 to deregister\n\t3 to publish\n\t4 to remove\n\t5 to retrieve-all\n\t6 to retrieve by name\n\t7 to search for specific file\n\t8 to download a file\n\t9 to update your contact info\n\t");
+        String in = bufferedReader.readLine();
         String message;
         switch (in) {
-            case 1://REGISTER
-                System.out.println("Register Name:");
+            case "0":
+
+                System.out.println("Enter the client name:");
                 name = bufferedReader.readLine();
-                int tcp = 3333;
+                while (name.isEmpty()){
+                    System.out.println("Re-enter client name:");
+                    name = bufferedReader.readLine();
+                }
+                System.out.println("Enter the tcp Port:");
+                Scanner scan = new Scanner(System.in);
+                while(!scan.hasNextInt()) {
+                    scan.next();
+                }
+                tcp = scan.nextInt();
+                return "IGNORE";
+            case "1"://REGISTER
+                if (name==null||name.isEmpty()){
+                    System.out.println("invalid client name");
+                    return "IGNORE";
+                }
+
                 message = "REGISTER|" + (++RQ) + "|" + name + "|" + tcp+"|";
                 return message;
                 
-            case 2://DEREGISTER
-                System.out.println("Deregister Name:");
-                String derregistername = bufferedReader.readLine();
-                message = "DE-REGISTER|" + (++RQ) + "|" + derregistername+"|";
-                return message;
+            case "2"://DEREGISTER
+                if (register){
+                message = "DE-REGISTER|" + (++RQ) + "|" + name+"|";
+                return message;}
+                return "IGNORE";
                 
-            case 3://PUBLISH
+            case "3"://PUBLISH
                 File folder = new File("./Files/");
                 File[] files = folder.listFiles();
                 String [] listofFiles;
@@ -92,28 +111,26 @@ public class Client {
                                   
                                     sendingFile += listofFiles[i] + " ";
                                 }
+
                             }
                         }
-
-                        if (sendingFile == ""){
-                            String error = "File does not exist, please try again";
-                            System.out.println(error);
-                            return "error";
+                    for(int i = 0; i < listofFiles.length; i++){
+                        if (!sendingFile.contains(listofFiles[i])){
+                            sendingFile="";
                         }
-                   
-                  
-                    System.out.println("Sent from the server: " );
-                    
+                    }
+
                     message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile+"|";
                     return message;
                     }
                 else{
                     System.out.println("There are no files in ./Files/ directory");
+                    return "IGNORE";
                 }
     
             
              
-            case 4://REMOVE
+            case "4"://REMOVE
 
                 String [] listofFilesRemoved;
                 String inputRemove;
@@ -124,73 +141,73 @@ public class Client {
                 for (int i=0;i<listofFilesRemoved.length;i++){
                     sendingFileRemoved += listofFilesRemoved[i] + " ";
                 }
+                for(int i = 0; i < listofFilesRemoved.length; i++){
+                    if (!sendingFileRemoved.contains(listofFilesRemoved[i])){
+                        sendingFile="";
+                    }
+                }
                 message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved+"|";
                 return message;
 
-            case 5://RETRIEVE-ALL
+            case "5"://RETRIEVE-ALL
                 message = "RETRIEVE-ALL|" + (++RQ)+"|" ;
                 return message;
 
-            case 6://RETRIEVE specific
+            case "6"://RETRIEVE specific
                 System.out.println("client name to search by");
                 String tempName= bufferedReader.readLine();
-                if (tempName==null){
-                    tempName=" ";
-                }
+               while(tempName.isEmpty()){
+                   System.out.println("Reenter client name to search by");
+                    tempName= bufferedReader.readLine();
+               }
                 message = "RETRIEVE-INFOT|"+(++RQ)+"|"+tempName+"|";
                 return message;
 
-            case 7://SEARCH specific
+            case "7"://SEARCH specific
                 System.out.println("search by file name");
                 String filename= bufferedReader.readLine();
                 message = "SEARCH-FILE|"+(++RQ)+"|"+filename+"|";
                 return message;
 
-            case 8://DOWNLOAD a file
-                System.out.println("Enter the name of the file you wish to download:");
-                
-                String fileNameDownload = bufferedReader.readLine();
-
-                message = "DOWNLOAD|"+(++RQ)+"|"+fileNameDownload+"|";
-                Path fileNamePath = Path.of(fileNameDownload);
-                String content = Files.readString(fileNamePath);
-
-                if(content == null){
-                    return message = "DOWNLOAD-ERROR|"+(++RQ)+"|content does not exist";
-                }
-
-                List<String> chunks = new ArrayList<String>();
-    
-                while(chunks.size()*200 < content.length()){
-                    if(chunks.size()*200+200 > content.length()){
-                        chunks.add(new String(content.substring(chunks.size()*200,content.length())));
-                    }else{
-                        chunks.add(new String(content.substring(chunks.size()*200, chunks.size()*200+200)));
-                    }
-                }
-
-                for(int i = 0; i< chunks.size(); i++){
-                    Integer chunkNumber = i;
-                    
-                    //last chunk validation
-                    if(i == chunks.size()-1){
-                         return message = "FILE-END|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
-                    }else{
-                        return message = "FILE|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
-                    }
-                }
-
-                System.out.println(content);
-                // return message;
-            case 9://UPDATE use contact info
+            case "8"://DOWNLOAD a file
+//                System.out.println("Enter the name of the file you wish to download:");
+//
+//                String fileNameDownload = bufferedReader.readLine();
+//
+//                message = "DOWNLOAD|"+(++RQ)+"|"+fileNameDownload+"|";
+//                Path fileNamePath = Path.of(fileNameDownload);
+//                String content = Files.readString(fileNamePath);
+//
+//                if(content == null){
+//                    return message = "DOWNLOAD-ERROR|"+(++RQ)+"|content does not exist";
+//                }
+//
+//                List<String> chunks = new ArrayList<String>();
+//
+//                while(chunks.size()*200 < content.length()){
+//                    if(chunks.size()*200+200 > content.length()){
+//                        chunks.add(new String(content.substring(chunks.size()*200,content.length())));
+//                    }else{
+//                        chunks.add(new String(content.substring(chunks.size()*200, chunks.size()*200+200)));
+//                    }
+//                }
+//
+//                for(int i = 0; i< chunks.size(); i++){
+//                    Integer chunkNumber = i;
+//
+//                    //last chunk validation
+//                    if(i == chunks.size()-1){
+//                         return message = "FILE-END|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
+//                    }else{
+//                        return message = "FILE|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
+//                    }
+//                }
+//
+//                System.out.println(content);
+//                // return message;
+            case "9"://UPDATE use contact info
                 //add yes and no
-                System.out.println("update TCP port");
-                int tcpPort=Integer.parseInt(bufferedReader.readLine());
-                System.out.println("update UDP port");
-                int udpPort=Integer.parseInt(bufferedReader.readLine());
-                System.out.println("update internet address");
-                InetAddress inet= InetAddress.getByName(bufferedReader.readLine());
-                message = "UPDATE-CONTACT|"+(++RQ)+"|"+name+"|"+inet+"|"+udpPort+"|"+tcpPort;
+                message = "UPDATE-CONTACT|"+(++RQ)+"|"+name+"|"+tcp;
                 return message;
 
             default:
@@ -203,7 +220,6 @@ public class Client {
     public static void main(String[] args) throws IOException {
 
         DatagramSocket datagramSocket = new DatagramSocket();
-
         // Get the IP address of the server
         InetAddress inetAddress = InetAddress.getByName(SERVER_IP);
         Client client = new Client(datagramSocket, inetAddress);

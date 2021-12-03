@@ -68,9 +68,7 @@ public class ClientHandler implements Serializable {
 
     @Override
     public String toString() {
-        return "ClientHandler{" +
-                "RQId=" + RQId +
-                ", UDPPort=" + UDPPort +
+        return "ClientHandler{ UDPPort=" + UDPPort +
                 ", TCPPort=" + TCPPort +
                 ", address=" + address +
                 ", name='" + name + '\'' +
