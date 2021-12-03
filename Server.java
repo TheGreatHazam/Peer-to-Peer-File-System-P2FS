@@ -122,19 +122,7 @@ System.out.println(Arrays.toString(listofFiles));
 
         return "REMOVED|"+clientInfo[1]+"|";
     }
-    //         if (temp.getFileList(clientInfo[2])) {
-    //             clients.get(i).setFileList(files);
-    //             clientnameMatch=true;
-    //             String message = "Remove" + " | " + Integer.parseInt(clientInfo[1]);
-    //             return message;
-    //         }
-    //     }
-    //     if(!clientnameMatch){
-    //         String message = "REMOVE-DENIED" + " |  | " + "NAME DOES NOT EXIST";
-    //     }
 
-    //     return "ERROR REMOVING";
-    // }
 
     private String publishClient(String[] clientInfo) {
         if (clientInfo.length<4){

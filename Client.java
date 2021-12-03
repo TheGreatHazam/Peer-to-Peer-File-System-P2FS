@@ -59,7 +59,7 @@ public class Client {
     private void serverfeeback(String messageFromServer) {
         String[] feedback = messageFromServer.split("\\|");
         if(feedback.length>=2){
-            System.out.println(feedback[1]+"|"+RQ);
+//            System.out.println(feedback[1]+"|"+RQ);
             if (Integer.parseInt(feedback[1])!=RQ){
                 System.out.println(feedback[1]+RQ);
                         System.out.println("RQ does not match");
@@ -368,13 +368,14 @@ public class Client {
 
 
     public static void main(String[] args) throws IOException {
-
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("enter ip of server");
+        SERVER_IP=bf.readLine();
         DatagramSocket datagramSocket = new DatagramSocket();
         // Get the IP address of the server
         InetAddress inetAddress = InetAddress.getByName(SERVER_IP);
         Client client = new Client(datagramSocket, inetAddress);
         System.out.println("Enter the client name:");
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         name = bf.readLine();
         while (name.isEmpty()) {
             System.out.println("Re-enter client name:");
@@ -385,8 +386,7 @@ public class Client {
         while (!scan.hasNextInt()) {
             scan.next();
         }
-        System.out.println("enter ip of server");
-        SERVER_IP=bf.readLine();
+
         client.sendThenReceive();
     }
 }
