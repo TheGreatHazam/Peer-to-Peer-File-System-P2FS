@@ -223,6 +223,18 @@ public class Client {
         // Get the IP address of the server
         InetAddress inetAddress = InetAddress.getByName(SERVER_IP);
         Client client = new Client(datagramSocket, inetAddress);
+        System.out.println("Enter the client name:");
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        name = bf.readLine();
+        while (name.isEmpty()){
+            System.out.println("Re-enter client name:");
+            name = bf.readLine();
+        }
+        System.out.println("Enter the tcp Port:");
+        Scanner scan = new Scanner(System.in);
+        while(!scan.hasNextInt()) {
+            scan.next();
+        }
         client.sendThenReceive();
     }
 }
