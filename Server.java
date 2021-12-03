@@ -100,9 +100,8 @@ System.out.println(Arrays.toString(listofFiles));
             if (temp.getName().equals(clientInfo[2])) {
                 for (int j=0;j< listofFiles.length;j++)
                 {
-                    System.out.println(listofFiles[j]);
-                    System.out.println(clients.get(i).getFileList());
-
+//                    System.out.println(listofFiles[j]);
+//                    System.out.println(clients.get(i).getFileList());
 
                     if (clients.get(i).getFileList().contains(listofFiles[j])){
                         clients.get(i).getFileList().remove(listofFiles[j]);

@@ -386,7 +386,7 @@ public class Client {
         while (!scan.hasNextInt()) {
             scan.next();
         }
-
+         tcp= scan.nextInt();
         client.sendThenReceive();
     }
 }
