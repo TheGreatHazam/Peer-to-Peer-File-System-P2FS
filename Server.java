@@ -63,7 +63,7 @@ public class Server {
 
             }
         }
-        return"UPDATE-DENIED|"+clientInfo[1]+clientInfo[2] +"| name not found";
+        return"UPDATE-DENIED|"+clientInfo[1]+"|"+clientInfo[2] +"| name not found";
     }
 
     private String searchfilebyName(String[] clientInfo) {
@@ -78,7 +78,7 @@ public class Server {
             }}
         }
         if (clientwithFile.size()==0){return"SEARCH-ERROR|"+clientInfo[1]+"|file is not found";}
-        else {return"SEARCH-FILE|"+clientInfo[1]+clientwithFile.toString(); }
+        else {return"SEARCH-FILE|"+clientInfo[1]+"|"+clientwithFile.toString(); }
     }
 
     private String retrieveClientbyName(String[] clientInfo) {
@@ -97,7 +97,7 @@ public class Server {
 
     private String removeClient(String[] clientInfo) {
         if (clientInfo.length<4){
-            String message = "REMOVE-DENIED" + "|"+clientInfo[1]+" | " + "files or name ";
+            String message = "REMOVE-DENIED" + "|"+clientInfo[1]+"|" + "files or name ";
             return message;
         }
         String [] listofFiles = clientInfo[3].split(" ");
@@ -120,7 +120,7 @@ System.out.println(Arrays.toString(listofFiles));
         }
 
 
-        return "REMOVED|"+clientInfo[1];
+        return "REMOVED|"+clientInfo[1]+"|";
     }
     //         if (temp.getFileList(clientInfo[2])) {
     //             clients.get(i).setFileList(files);
@@ -138,7 +138,7 @@ System.out.println(Arrays.toString(listofFiles));
 
     private String publishClient(String[] clientInfo) {
         if (clientInfo.length<4){
-            String message = "PUBLISH-DENIED" + "|"+clientInfo[1]+" | " + "files or name ";
+            String message = "PUBLISH-DENIED" + "|"+clientInfo[1]+"|" + "files or name ";
             return message;
         }
         String []filenames =clientInfo[3].split(" ");
@@ -149,12 +149,12 @@ System.out.println(Arrays.toString(listofFiles));
             if (temp.getName().equals(clientInfo[2])) {
                 clients.get(i).setFileList(files);
                 clientnameMatch=true;
-                String message = "PUBLISH" + "|" + Integer.parseInt(clientInfo[1]);
+                String message = "PUBLISH" + "|" +clientInfo[1]+"|";
                 return message;
             }
         }
         if(!clientnameMatch){
-            String message = "PUBLISH-DENIED" + "|"+clientInfo[1]+" | " + "Client Does not exist";
+            String message = "PUBLISH-DENIED" + "|"+clientInfo[1]+"|" + "Client Does not exist";
             return message;
         }
 
@@ -166,7 +166,7 @@ System.out.println(Arrays.toString(listofFiles));
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(clientInfo[2])) {
-                String message = "DE-REGISTERED" + "|" + Integer.parseInt(clientInfo[1]) + " | " + temp.getName();
+                String message = "DE-REGISTERED" + "|" + clientInfo[1] + "|" + temp.getName();
                 clients.remove(i);
                 return message;
 
@@ -183,7 +183,7 @@ System.out.println(Arrays.toString(listofFiles));
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(clientInfo[2])) {
                 register = false;
-                String message = "REGISTER-DENIED" + "|"+clientInfo[1] + " | " + "USERNAME TAKEN OR ALREADY REGISTERED";
+                String message = "REGISTER-DENIED" + "|"+clientInfo[1] + "|" + "USERNAME TAKEN OR ALREADY REGISTERED";
                 return message;
 
             }
@@ -192,7 +192,7 @@ System.out.println(Arrays.toString(listofFiles));
         if (register) {
             ClientHandler registerClient = new ClientHandler(Integer.parseInt(clientInfo[1]) ,receivePacket.getPort(), Integer.parseInt(clientInfo[3]) , receivePacket.getAddress(), clientInfo[2]);
             clients.add(registerClient);
-            String message = "REGISTERED" + "|" +clientInfo[1];
+            String message = "REGISTERED" + "|" +clientInfo[1]+"|";
             return message;
 
         }
