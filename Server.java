@@ -88,8 +88,6 @@ public class Server {
                 return"RETRIEVE|"+clientInfo[1]+"|"+ clients.get(i).toString();
             }
         }
-
-
         return"RETRIEVE-ERROR|"+clientInfo[1]+"|Client not found";
     }
 
@@ -99,7 +97,7 @@ public class Server {
 
     private String removeClient(String[] clientInfo) {
         if (clientInfo.length<4){
-            String message = "REMOVE-DENIED" + " |"+clientInfo[1]+" | " + "files or name ";
+            String message = "REMOVE-DENIED" + "|"+clientInfo[1]+" | " + "files or name ";
             return message;
         }
         String [] listofFiles = clientInfo[3].split(" ");
@@ -140,7 +138,7 @@ System.out.println(Arrays.toString(listofFiles));
 
     private String publishClient(String[] clientInfo) {
         if (clientInfo.length<4){
-            String message = "PUBLISH-DENIED" + " |"+clientInfo[1]+" | " + "files or name ";
+            String message = "PUBLISH-DENIED" + "|"+clientInfo[1]+" | " + "files or name ";
             return message;
         }
         String []filenames =clientInfo[3].split(" ");
@@ -151,12 +149,12 @@ System.out.println(Arrays.toString(listofFiles));
             if (temp.getName().equals(clientInfo[2])) {
                 clients.get(i).setFileList(files);
                 clientnameMatch=true;
-                String message = "PUBLISH" + " | " + Integer.parseInt(clientInfo[1]);
+                String message = "PUBLISH" + "|" + Integer.parseInt(clientInfo[1]);
                 return message;
             }
         }
         if(!clientnameMatch){
-            String message = "PUBLISH-DENIED" + " |"+clientInfo[1]+" | " + "Client Does not exist";
+            String message = "PUBLISH-DENIED" + "|"+clientInfo[1]+" | " + "Client Does not exist";
             return message;
         }
 
@@ -164,20 +162,17 @@ System.out.println(Arrays.toString(listofFiles));
     }
 
     private String deregisterClient(String[] clientInfo) {
-        boolean deregister=true;
+
         for (int i = 0; i < clients.size(); i++) {
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(clientInfo[2])) {
-                String message = "DE-REGISTER " + " | " + Integer.parseInt(clientInfo[1]) + " | " + temp.getName();
+                String message = "DE-REGISTERED" + "|" + Integer.parseInt(clientInfo[1]) + " | " + temp.getName();
                 clients.remove(i);
                 return message;
 
             }
         }
-        if (deregister){
-            String message = "DE-REGISTER  | failed";
-            return message;
-        }
+
         return "ERROR DEREGESTERING";
     }
 
@@ -188,7 +183,7 @@ System.out.println(Arrays.toString(listofFiles));
             ClientHandler temp = (ClientHandler) clients.get(i);
             if (temp.getName().equals(clientInfo[2])) {
                 register = false;
-                String message = "REGISTER-DENIED" + " | "+clientInfo[1] + " | " + "USERNAME TAKEN OR ALREADY REGISTERED";
+                String message = "REGISTER-DENIED" + "|"+clientInfo[1] + " | " + "USERNAME TAKEN OR ALREADY REGISTERED";
                 return message;
 
             }
@@ -197,7 +192,7 @@ System.out.println(Arrays.toString(listofFiles));
         if (register) {
             ClientHandler registerClient = new ClientHandler(Integer.parseInt(clientInfo[1]) ,receivePacket.getPort(), Integer.parseInt(clientInfo[3]) , receivePacket.getAddress(), clientInfo[2]);
             clients.add(registerClient);
-            String message = "REGISTERED" + " | " +clientInfo[1];
+            String message = "REGISTERED" + "|" +clientInfo[1];
             return message;
 
         }

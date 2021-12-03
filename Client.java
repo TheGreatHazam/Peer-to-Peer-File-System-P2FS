@@ -14,18 +14,16 @@ import java.util.Scanner;
 import Files.javafiledemo;
 
 
-
 public class Client {
     private static final int PORT_NUMBER = 1234;
     private static final String SERVER_IP = "localhost";//local host
     private DatagramSocket datagramSocket;
     private InetAddress inetAddress;
     private static int RQ = 0;
-    private static  String name;
+    private static String name;
     int tcp;
-    static Boolean register=false;
+    static Boolean register = false;
 
-    
 
     public Client(DatagramSocket datagramSocket, InetAddress inetAddress) {
         this.datagramSocket = datagramSocket;
@@ -48,11 +46,41 @@ public class Client {
                 datagramSocket.receive(receivePacket);
                 String messageFromServer = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 System.out.println("server:" + messageFromServer);
+                serverfeeback(messageFromServer);
 
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
             }
+        }
+
+    }
+
+    private void serverfeeback(String messageFromServer) {
+        String[] feedback = messageFromServer.split("\\|");
+//        incrementRQ(clientInfo);
+        switch (feedback[0]) {
+            case "REGISTERED":
+                register = true;
+                break;
+
+            case "DE-REGISTERED":
+                register = false;
+                break;
+
+            case "PUBLISH-DENIED":
+                //publish again
+                break;
+
+            case "REMOVE-DENIED":
+                //remove again
+                break;
+
+            case "UPDATE-CONFIRMED":
+                register = true;
+                break;
+            default:
+                break;
         }
 
     }
@@ -67,107 +95,128 @@ public class Client {
 
                 System.out.println("Enter the client name:");
                 name = bufferedReader.readLine();
-                while (name.isEmpty()){
+                while (name.isEmpty()) {
                     System.out.println("Re-enter client name:");
                     name = bufferedReader.readLine();
                 }
                 System.out.println("Enter the tcp Port:");
                 Scanner scan = new Scanner(System.in);
-                while(!scan.hasNextInt()) {
+                while (!scan.hasNextInt()) {
                     scan.next();
                 }
                 tcp = scan.nextInt();
                 return "IGNORE";
             case "1"://REGISTER
-                if (name==null||name.isEmpty()){
+                if (name.isEmpty()) {
                     System.out.println("invalid client name");
                     return "IGNORE";
                 }
 
-                message = "REGISTER|" + (++RQ) + "|" + name + "|" + tcp+"|";
+                message = "REGISTER|" + (++RQ) + "|" + name + "|" + tcp + "|";
                 return message;
-                
+
             case "2"://DEREGISTER
-                if (register){
-                message = "DE-REGISTER|" + (++RQ) + "|" + name+"|";
-                return message;}
+                System.out.println(register);
+                if (register) {
+                    message = "DE-REGISTER|" + (++RQ) + "|" + name + "|";
+                    return message;
+                }
                 return "IGNORE";
-                
+
             case "3"://PUBLISH
-                File folder = new File("./Files/");
-                File[] files = folder.listFiles();
-                String [] listofFiles;
-                String inputPublish;
-                String sendingFile = "";
-                if (files != null){
-                     System.out.println("Publish file Names:");
-                     inputPublish = bufferedReader.readLine();
-                     listofFiles = inputPublish.split(",");
-                   
-                        for(int i = 0; i < listofFiles.length; i++){
-                            for(File file : files )
-                            {
-                                if(file.getName().equals( listofFiles[i])){
-                                  
+                if (register) {
+                    File folder = new File("./Files/");
+                    File[] files = folder.listFiles();
+                    String[] listofFiles;
+                    String inputPublish;
+                    String sendingFile = "";
+                    if (files != null) {
+                        System.out.println("Publish file Names:");
+                        inputPublish = bufferedReader.readLine();
+                        listofFiles = inputPublish.split(",");
+
+                        for (int i = 0; i < listofFiles.length; i++) {
+                            for (File file : files) {
+                                if (file.getName().equals(listofFiles[i])) {
+
                                     sendingFile += listofFiles[i] + " ";
                                 }
 
                             }
                         }
-                    for(int i = 0; i < listofFiles.length; i++){
-                        if (!sendingFile.contains(listofFiles[i])){
-                            sendingFile="";
+                        for (int i = 0; i < listofFiles.length; i++) {
+                            if (!sendingFile.contains(listofFiles[i])) {
+                                sendingFile = "";
+                            }
                         }
-                    }
 
-                    message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile+"|";
-                    return message;
+                        message = "PUBLISH|" + (++RQ) + "|" + name + "|" + sendingFile + "|";
+                        return message;
+                    } else {
+                        System.out.println("There are no files in ./Files/ directory");
+                        return "IGNORE";
                     }
-                else{
-                    System.out.println("There are no files in ./Files/ directory");
+                } else {
+                    System.out.println("Not registered");
                     return "IGNORE";
                 }
-    
-            
-             
+
             case "4"://REMOVE
-
-                String [] listofFilesRemoved;
-                String inputRemove;
-                System.out.println("Remove file Names:");
-                inputRemove = bufferedReader.readLine();
-                String sendingFileRemoved = "";
-                listofFilesRemoved = inputRemove.split(",");
-                for (int i=0;i<listofFilesRemoved.length;i++){
-                    sendingFileRemoved += listofFilesRemoved[i] + " ";
-                }
-                for(int i = 0; i < listofFilesRemoved.length; i++){
-                    if (!sendingFileRemoved.contains(listofFilesRemoved[i])){
-                        sendingFile="";
+                if (register) {
+                    String[] listofFilesRemoved;
+                    String inputRemove;
+                    System.out.println("Remove file Names:");
+                    inputRemove = bufferedReader.readLine();
+                    String sendingFileRemoved = "";
+                    listofFilesRemoved = inputRemove.split(",");
+                    for (int i = 0; i < listofFilesRemoved.length; i++) {
+                        sendingFileRemoved += listofFilesRemoved[i] + " ";
                     }
+                    for (int i = 0; i < listofFilesRemoved.length; i++) {
+                        if (!sendingFileRemoved.contains(listofFilesRemoved[i])) {
+                            sendingFileRemoved = "";
+                        }
+                    }
+                    message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved + "|";
+                    return message;
+                } else {
+                    System.out.println("Not registered");
+                    return "IGNORE";
                 }
-                message = "REMOVE|" + (++RQ) + "|" + name + "|" + sendingFileRemoved+"|";
-                return message;
-
             case "5"://RETRIEVE-ALL
-                message = "RETRIEVE-ALL|" + (++RQ)+"|" ;
-                return message;
+                if (register) {
+                    message = "RETRIEVE-ALL|" + (++RQ) + "|";
+                    return message;
+                } else {
+                    System.out.println("Not registered");
+                    return "IGNORE";
+                }
 
             case "6"://RETRIEVE specific
-                System.out.println("client name to search by");
-                String tempName= bufferedReader.readLine();
-               while(tempName.isEmpty()){
-                   System.out.println("Reenter client name to search by");
-                    tempName= bufferedReader.readLine();
-               }
-                message = "RETRIEVE-INFOT|"+(++RQ)+"|"+tempName+"|";
-                return message;
+                if (register) {
+                    System.out.println("client name to search by");
+                    String tempName = bufferedReader.readLine();
+                    while (tempName.isEmpty()) {
+                        System.out.println("Reenter client name to search by");
+                        tempName = bufferedReader.readLine();
+                    }
+                    message = "RETRIEVE-INFOT|" + (++RQ) + "|" + tempName + "|";
+                    return message;
+                } else {
+                    System.out.println("Not registered");
+                    return "IGNORE";
+                }
 
             case "7"://SEARCH specific
-                System.out.println("search by file name");
-                String filename= bufferedReader.readLine();
-                message = "SEARCH-FILE|"+(++RQ)+"|"+filename+"|";
-                return message;
+                if (register) {
+                    System.out.println("search by file name");
+                    String filename = bufferedReader.readLine();
+                    message = "SEARCH-FILE|" + (++RQ) + "|" + filename + "|";
+                    return message;
+                } else {
+                    System.out.println("Not registered");
+                    return "IGNORE";
+                }
 
             case "8"://DOWNLOAD a file
 //                System.out.println("Enter the name of the file you wish to download:");
@@ -207,8 +256,9 @@ public class Client {
 //                // return message;
             case "9"://UPDATE use contact info
                 //add yes and no
-                message = "UPDATE-CONTACT|"+(++RQ)+"|"+name+"|"+tcp;
+                message = "UPDATE-CONTACT|" + (++RQ) + "|" + name + "|" + tcp;
                 return message;
+
 
             default:
                 break;
@@ -226,13 +276,13 @@ public class Client {
         System.out.println("Enter the client name:");
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         name = bf.readLine();
-        while (name.isEmpty()){
+        while (name.isEmpty()) {
             System.out.println("Re-enter client name:");
             name = bf.readLine();
         }
         System.out.println("Enter the tcp Port:");
         Scanner scan = new Scanner(System.in);
-        while(!scan.hasNextInt()) {
+        while (!scan.hasNextInt()) {
             scan.next();
         }
         client.sendThenReceive();
