@@ -4,8 +4,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+
+import Files.javafiledemo;
 
 
 
@@ -59,7 +65,7 @@ public class Client {
                 System.out.println("Register Name:");
                 name = bufferedReader.readLine();
                 int tcp = 3333;
-                message = "REGISTER|" + (++RQ) + "|" + name + "|" + 3333+"|";
+                message = "REGISTER|" + (++RQ) + "|" + name + "|" + tcp+"|";
                 return message;
                 
             case 2://DEREGISTER
@@ -141,7 +147,41 @@ public class Client {
                 return message;
 
             case 8://DOWNLOAD a file
+                System.out.println("Enter the name of the file you wish to download:");
+                
+                String fileNameDownload = bufferedReader.readLine();
 
+                message = "DOWNLOAD|"+(++RQ)+"|"+fileNameDownload+"|";
+                Path fileNamePath = Path.of(fileNameDownload);
+                String content = Files.readString(fileNamePath);
+
+                if(content == null){
+                    return message = "DOWNLOAD-ERROR|"+(++RQ)+"|content does not exist";
+                }
+
+                List<String> chunks = new ArrayList<String>();
+    
+                while(chunks.size()*200 < content.length()){
+                    if(chunks.size()*200+200 > content.length()){
+                        chunks.add(new String(content.substring(chunks.size()*200,content.length())));
+                    }else{
+                        chunks.add(new String(content.substring(chunks.size()*200, chunks.size()*200+200)));
+                    }
+                }
+
+                for(int i = 0; i< chunks.size(); i++){
+                    Integer chunkNumber = i;
+                    
+                    //last chunk validation
+                    if(i == chunks.size()-1){
+                         return message = "FILE-END|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
+                    }else{
+                        return message = "FILE|"+(++RQ)+"|"+fileNameDownload+"|"+chunkNumber+"|"+chunks; //TODO: need to modify for individual chunks
+                    }
+                }
+
+                System.out.println(content);
+                // return message;
             case 9://UPDATE use contact info
                 //add yes and no
                 System.out.println("update TCP port");
